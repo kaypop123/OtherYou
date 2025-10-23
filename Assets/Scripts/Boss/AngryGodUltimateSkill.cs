@@ -10,16 +10,16 @@ public class AngryGodUltimateSkill : MonoBehaviour
     private float lastUsedTime = -999f;
 
     [Header("Ultimate Skill Settings")]
-    [Tooltip("±Ã±Ø±â »ç¿ë ÈÄ ´ÙÀ½ »ç¿ë±îÁöÀÇ ÃÖ¼Ò ÄðÅ¸ÀÓ")]
+    [Tooltip("ê¶ê·¹ê¸° ì‚¬ìš© í›„ ë‹¤ìŒ ì‚¬ìš©ê¹Œì§€ì˜ ìµœì†Œ ì¿¨íƒ€ìž„")]
     [SerializeField] public float cooldown = 20f;
-    [Tooltip("±Ã±Ø±â ¾Ö´Ï¸ÞÀÌ¼ÇÀÇ ÃÑ ¿¹»ó ½Ã°£ (¼±µô·¹ÀÌ + ½ÇÁ¦ ¹ßµ¿ + ÈÄµô·¹ÀÌ Æ÷ÇÔ)")] // ¼³¸í º¯°æ
-    [SerializeField] private float totalAnimationTime = 4.0f; // ¿¹: ¼±µô, ¹ßµ¿, ÈÄµôÀ» ¸ðµÎ Æ÷ÇÔÇÑ ¾Ö´Ï¸ÞÀÌ¼Ç ÃÑ ±æÀÌ
+    [Tooltip("ê¶ê·¹ê¸° ì• ë‹ˆë©”ì´ì…˜ì˜ ì´ ì˜ˆìƒ ì‹œê°„ (ì„ ë”œë ˆì´ + ì‹¤ì œ ë°œë™ + í›„ë”œë ˆì´ í¬í•¨)")] // ì„¤ëª… ë³€ê²½
+    [SerializeField] private float totalAnimationTime = 4.0f; // ì˜ˆ: ì„ ë”œ, ë°œë™, í›„ë”œì„ ëª¨ë‘ í¬í•¨í•œ ì• ë‹ˆë©”ì´ì…˜ ì´ ê¸¸ì´
 
-    // ÄÄÆ÷³ÍÆ® ÂüÁ¶
+    // ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
     private Animator animator;
     private Rigidbody2D rb;
     private AngryGodAiCore aiCore;
-    private float originalGravityScale; // ¿ø·¡ Áß·Â°ª ÀúÀå¿ë
+    private float originalGravityScale; // ì›ëž˜ ì¤‘ë ¥ê°’ ì €ìž¥ìš©
 
     void Awake()
     {
@@ -38,133 +38,113 @@ public class AngryGodUltimateSkill : MonoBehaviour
         {
             originalGravityScale = rb.gravityScale;
         }
-        lastUsedTime = -cooldown; // °ÔÀÓ ½ÃÀÛ ½Ã ¹Ù·Î »ç¿ëÇÒ ¼ö ÀÖµµ·Ï
+        lastUsedTime = -cooldown; // ê²Œìž„ ì‹œìž‘ ì‹œ ë°”ë¡œ ì‚¬ìš©í•  ìˆ˜ ìžˆë„ë¡
     }
 
     /// <summary>
-    /// ±Ã±Ø±â ½Ãµµ¸¦ ½ÃÀÛÇÏ´Â ÄÚ·çÆ¾.
-    /// AngryGodAiCore µî ¿ÜºÎ¿¡¼­ È£ÃâµË´Ï´Ù.
+    /// ê¶ê·¹ê¸° ì‹œë„ë¥¼ ì‹œìž‘í•˜ëŠ” ì½”ë£¨í‹´.
+    /// AngryGodAiCore ë“± ì™¸ë¶€ì—ì„œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
     public IEnumerator TryStartUltimate()
     {
-        // 1. ÀÌ¹Ì »ç¿ë ÁßÀÌ°Å³ª ÄðÅ¸ÀÓÀÌ ¾È µÆÀ¸¸é Áß´Ü
+        // 1. ì´ë¯¸ ì‚¬ìš© ì¤‘ì´ê±°ë‚˜ ì¿¨íƒ€ìž„ì´ ì•ˆ ëìœ¼ë©´ ì¤‘ë‹¨
         if (IsUltimateActive || Time.time < lastUsedTime + cooldown)
         {
-            Debug.Log($"[UltimateSkill] TryStartUltimate Áï½Ã Áß´Ü. IsActive: {IsUltimateActive}, CooldownLeft: {(lastUsedTime + cooldown) - Time.time}");
+            Debug.Log($"[UltimateSkill] TryStartUltimate ì¦‰ì‹œ ì¤‘ë‹¨. IsActive: {IsUltimateActive}, CooldownLeft: {(lastUsedTime + cooldown) - Time.time}");
             yield break;
         }
 
-        Debug.Log("[UltimateSkill] TryStartUltimate Á¶°Ç Åë°ú, ½ÃÄö½º ½ÃÀÛ ÁØºñ.");
+        Debug.Log("[UltimateSkill] TryStartUltimate ì¡°ê±´ í†µê³¼, ì‹œí€€ìŠ¤ ì‹œìž‘ ì¤€ë¹„.");
         IsUltimateActive = true;
-        aiCore.NotifyActionStart(); // AI Core¿¡°Ô Çàµ¿ ½ÃÀÛ ¾Ë¸²
-        Debug.Log("[UltimateSkill] IsUltimateActive=true, NotifyActionStart() È£ÃâµÊ.");
+        aiCore.NotifyActionStart(); // AI Coreì—ê²Œ í–‰ë™ ì‹œìž‘ ì•Œë¦¼
+        Debug.Log("[UltimateSkill] IsUltimateActive=true, NotifyActionStart() í˜¸ì¶œë¨.");
 
-        // 2. Áï½Ã ÀÌµ¿ Á¤Áö ¹× ¹æÇâ °íÁ¤
+        // 2. ì¦‰ì‹œ ì´ë™ ì •ì§€ ë° ë°©í–¥ ê³ ì •
         if (rb != null)
         {
             rb.velocity = Vector2.zero;
-            rb.gravityScale = 0f; // ±Ã±Ø±â Áß Áß·Â ¿µÇâ Á¦°Å
-            Debug.Log("[UltimateSkill] Rigidbody ¼Óµµ/Áß·Â Á¶ÀýµÊ.");
+            rb.gravityScale = 0f; // ê¶ê·¹ê¸° ì¤‘ ì¤‘ë ¥ ì˜í–¥ ì œê±°
+            Debug.Log("[UltimateSkill] Rigidbody ì†ë„/ì¤‘ë ¥ ì¡°ì ˆë¨.");
         }
-        if (aiCore.GetPlayer() != null) // aiCore¿¡ GetPlayer()°¡ ÀÖ¾î¾ß ÇÔ
+        if (aiCore.GetPlayer() != null) // aiCoreì— GetPlayer()ê°€ ìžˆì–´ì•¼ í•¨
         {
-            aiCore.ForceFlipTowardsTarget(); // ÇÃ·¹ÀÌ¾î ¹æÇâÀ¸·Î Áï½Ã ÀüÈ¯
-            Debug.Log("[UltimateSkill] ÇÃ·¹ÀÌ¾î ¹æÇâÀ¸·Î ÀüÈ¯µÊ.");
+            aiCore.ForceFlipTowardsTarget(); // í”Œë ˆì´ì–´ ë°©í–¥ìœ¼ë¡œ ì¦‰ì‹œ ì „í™˜
+            Debug.Log("[UltimateSkill] í”Œë ˆì´ì–´ ë°©í–¥ìœ¼ë¡œ ì „í™˜ë¨.");
         }
 
-        // 3. "Ultimate" Trigger ÇÏ³ª·Î ÀüÃ¼ ±Ã±Ø±â ¾Ö´Ï¸ÞÀÌ¼Ç ½ÃÀÛ
-        animator.SetTrigger("Ultimate"); // ¡Ú¡Ú¡Ú "Ultimate" Trigger »ç¿ë ¡Ú¡Ú¡Ú
-        Debug.Log($"[UltimateSkill] 'Ultimate' Æ®¸®°Å ¹ßµ¿. ÃÑ ¾Ö´Ï¸ÞÀÌ¼Ç ½Ã°£ ({totalAnimationTime}ÃÊ) ½ÃÀÛ.");
-
-        // --- ½ÇÁ¦ ±Ã±Ø±â °ø°Ý/È¿°ú ¹ßµ¿ Å¸ÀÌ¹Ö Á¦¾î ---
-        // ¹æ¹ý A: ¾Ö´Ï¸ÞÀÌ¼Ç ÀÌº¥Æ® »ç¿ë (±ÇÀå)
-        //   - "Ultimate" ¾Ö´Ï¸ÞÀÌ¼ÇÀÇ Æ¯Á¤ ÇÁ·¹ÀÓ(¿¹: ½ÇÁ¦ Å¸°Ý/È¿°ú ¹ß»ýÇÏ´Â ½ÃÁ¡)¿¡
-        //     ¾Ö´Ï¸ÞÀÌ¼Ç ÀÌº¥Æ®¸¦ Ãß°¡ÇÏ°í, ±× ÀÌº¥Æ®°¡ ¾Æ·¡¿Í °°Àº ÇÔ¼ö¸¦ È£ÃâÇÏµµ·Ï ¼³Á¤ÇÕ´Ï´Ù.
-        //     public void AnimEvent_ExecuteUltimateEffect() { /* ½ÇÁ¦ °ø°Ý ·ÎÁ÷ */ }
-
-        // ¹æ¹ý B: ½Ã°£ ±â¹ÝÀ¸·Î ÄÚ·çÆ¾ ³»¿¡¼­ È¿°ú ¹ßµ¿ (´ú Á¤È®ÇÒ ¼ö ÀÖÀ½)
-        //   - ¸¸¾à ¾Ö´Ï¸ÞÀÌ¼Ç ÀÌº¥Æ® »ç¿ëÀÌ ¾î·Æ´Ù¸é, ¿©±â¼­ Æ¯Á¤ ½Ã°£(¿¹: ¼±µô·¹ÀÌ ½Ã°£) ÈÄ
-        //     °ø°Ý ·ÎÁ÷À» ½ÇÇàÇÏ´Â ÄÚ·çÆ¾À» ¶Ç ½ÃÀÛÇÒ ¼ö ÀÖ½À´Ï´Ù.
-        //     StartCoroutine(PerformUltimateAttackLogicWithDelay(¼±µô·¹ÀÌ½Ã°£));
-
-        // TODO: À§¿¡ ¼³¸íµÈ ¹æ¹ý Áß ÇÏ³ª¸¦ ¼±ÅÃÇÏ¿© ½ÇÁ¦ ±Ã±Ø±â °ø°Ý ·ÎÁ÷À» ±¸ÇöÇÏ¼¼¿ä.
-        // ¿¹½Ã (½Ã°£ ±â¹Ý, ½ÇÁ¦·Î´Â AnimEvent_ExecuteUltimateEffect()°¡ ´õ ÁÁÀ½):
-        // yield return new WaitForSeconds(¼±µô·¹ÀÌ½Ã°£_¾Ö´Ï¸ÞÀÌ¼Ç¿¡_¸ÂÃç¼­);
-        // if (IsUltimateActive) // ¾ÆÁ÷ ½ºÅ³ÀÌ À¯È¿ÇÏ´Ù¸é
-        // {
-        //     Debug.Log("[UltimateSkill] ½ÇÁ¦ °ø°Ý/È¿°ú ¹ßµ¿!");
-        //     // ¿©±â¿¡ ½ÇÁ¦ µ¥¹ÌÁö ÆÇÁ¤, ÀÌÆåÆ® »ý¼º µî ·ÎÁ÷
-        // }
+        // 3. "Ultimate" Trigger í•˜ë‚˜ë¡œ ì „ì²´ ê¶ê·¹ê¸° ì• ë‹ˆë©”ì´ì…˜ ì‹œìž‘
+        animator.SetTrigger("Ultimate"); 
+        Debug.Log($"[UltimateSkill] 'Ultimate' íŠ¸ë¦¬ê±° ë°œë™. ì´ ì• ë‹ˆë©”ì´ì…˜ ì‹œê°„ ({totalAnimationTime}ì´ˆ) ì‹œìž‘.");
 
 
-        // 4. ±Ã±Ø±â ¾Ö´Ï¸ÞÀÌ¼ÇÀÇ ÃÑ ½Ã°£¸¸Å­ ´ë±â
-        //    ÀÌ ½Ã°£ µ¿¾È ¾Ö´Ï¸ÞÀÌ¼ÇÀÌ ¼±µô·¹ÀÌ, ½ÇÁ¦ ¹ßµ¿, ÈÄµô·¹ÀÌ µîÀ» ¸ðµÎ Æ÷ÇÔÇÏ¿© Àç»ýµÈ´Ù°í °¡Á¤ÇÕ´Ï´Ù.
+
+
+        // 4. ê¶ê·¹ê¸° ì• ë‹ˆë©”ì´ì…˜ì˜ ì´ ì‹œê°„ë§Œí¼ ëŒ€ê¸°
         yield return new WaitForSeconds(totalAnimationTime);
-        Debug.Log($"[UltimateSkill] Total animation time ({totalAnimationTime}ÃÊ) Á¾·áµÊ.");
+        Debug.Log($"[UltimateSkill] Total animation time ({totalAnimationTime}ì´ˆ) ì¢…ë£Œë¨.");
 
-        // 5. ±Ã±Ø±â°¡ Áß°£¿¡ Ãë¼ÒµÇÁö ¾Ê¾Ò´ÂÁö È®ÀÎ (¿¹: º¸½º »ç¸Á)
-        //    totalAnimationTime ´ë±â Áß¿¡ ¾î¶² ÀÌÀ¯·Îµç IsUltimateActive°¡ false°¡ µÇ¾ú´Ù¸é (AbortUltimate È£Ãâ µî)
+        // 5. ê¶ê·¹ê¸°ê°€ ì¤‘ê°„ì— ì·¨ì†Œë˜ì§€ ì•Šì•˜ëŠ”ì§€ í™•ì¸ (ì˜ˆ: ë³´ìŠ¤ ì‚¬ë§)
+        //    totalAnimationTime ëŒ€ê¸° ì¤‘ì— ì–´ë–¤ ì´ìœ ë¡œë“  IsUltimateActiveê°€ falseê°€ ë˜ì—ˆë‹¤ë©´ (AbortUltimate í˜¸ì¶œ ë“±)
         if (!IsUltimateActive)
         {
-            Debug.Log("[UltimateSkill] Ultimate Áß Ãë¼ÒµÊ (IsUltimateActive°¡ false). Ãß°¡ Á¾·á Ã³¸® ºÒÇÊ¿ä (ÀÌ¹Ì AbortUltimate¿¡¼­ Ã³¸®µÊ).");
-            // AbortUltimate¿¡¼­ ÀÌ¹Ì NotifyActionEnd µîÀ» È£ÃâÇßÀ» °ÍÀÌ¹Ç·Î ¿©±â¼­´Â Ãß°¡ ÀÛ¾÷ÀÌ ¾øÀ» ¼ö ÀÖ½À´Ï´Ù.
-            // ´Ü, AbortUltimate°¡ È£ÃâµÇÁö ¾Ê¾Ò´Âµ¥ IsUltimateActive°¡ false°¡ µÈ ¿¹¿ÜÀûÀÎ »óÈ²À» ´ëºñÇÒ ¼ö´Â ÀÖ½À´Ï´Ù.
-            if (rb != null && rb.gravityScale == 0f) rb.gravityScale = originalGravityScale; // Áß·Â º¹±¸ È®ÀÎ
-            if (aiCore != null && !IsUltimateActive) aiCore.NotifyActionEnd(); // ¸¸¾àÀ» À§ÇØ ÇÑ¹ø ´õ
+            Debug.Log("[UltimateSkill] Ultimate ì¤‘ ì·¨ì†Œë¨ (IsUltimateActiveê°€ false). ì¶”ê°€ ì¢…ë£Œ ì²˜ë¦¬ ë¶ˆí•„ìš” (ì´ë¯¸ AbortUltimateì—ì„œ ì²˜ë¦¬ë¨).");
+
+            if (rb != null && rb.gravityScale == 0f) rb.gravityScale = originalGravityScale; // ì¤‘ë ¥ ë³µêµ¬ í™•ì¸
+            if (aiCore != null && !IsUltimateActive) aiCore.NotifyActionEnd(); // ë§Œì•½ì„ ìœ„í•´ í•œë²ˆ ë”
             yield break;
         }
 
-        // 6. Á¤»óÀûÀÎ ±Ã±Ø±â Á¾·á Ã³¸®
+        // 6. ì •ìƒì ì¸ ê¶ê·¹ê¸° ì¢…ë£Œ ì²˜ë¦¬
         yield return FinishUltimate();
     }
 
     /// <summary>
-    /// ¾Ö´Ï¸ÞÀÌ¼Ç ÀÌº¥Æ® ¶Ç´Â ½Ã°£ ±â¹ÝÀ¸·Î ½ÇÁ¦ ±Ã±Ø±â È¿°ú¸¦ ¹ßµ¿ÇÒ ¶§ È£ÃâµÉ ¼ö ÀÖ´Â ÇÔ¼ö (¿¹½Ã)
+    /// ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ ë˜ëŠ” ì‹œê°„ ê¸°ë°˜ìœ¼ë¡œ ì‹¤ì œ ê¶ê·¹ê¸° íš¨ê³¼ë¥¼ ë°œë™í•  ë•Œ í˜¸ì¶œë  ìˆ˜ ìžˆëŠ” í•¨ìˆ˜ (ì˜ˆì‹œ)
     /// </summary>
-    public void ExecuteUltimateEffect() // ¾Ö´Ï¸ÞÀÌ¼Ç ÀÌº¥Æ®¿¡¼­ È£ÃâµÇµµ·Ï ÀÌ¸§ º¯°æ °¡´É
+    public void ExecuteUltimateEffect() // ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ì—ì„œ í˜¸ì¶œë˜ë„ë¡ ì´ë¦„ ë³€ê²½ ê°€ëŠ¥
     {
-        if (!IsUltimateActive) return; // ÀÌ¹Ì Ãë¼ÒµÇ¾ú°Å³ª ³¡³µÀ¸¸é ½ÇÇà ¾ÈÇÔ
-        Debug.Log("[UltimateSkill] >>> ½ÇÁ¦ ±Ã±Ø±â È¿°ú ¹ßµ¿! <<<");
-        // ¿©±â¿¡ µ¥¹ÌÁö ÆÇÁ¤, ÀÌÆåÆ® »ý¼º µî ½ÇÁ¦ ±Ã±Ø±â ·ÎÁ÷À» ±¸ÇöÇÕ´Ï´Ù.
+        if (!IsUltimateActive) return; // ì´ë¯¸ ì·¨ì†Œë˜ì—ˆê±°ë‚˜ ëë‚¬ìœ¼ë©´ ì‹¤í–‰ ì•ˆí•¨
+        Debug.Log("[UltimateSkill] >>> ì‹¤ì œ ê¶ê·¹ê¸° íš¨ê³¼ ë°œë™! <<<");
+
     }
 
 
     private IEnumerator FinishUltimate()
     {
-        Debug.Log("[UltimateSkill] Finishing ultimate (Á¤»ó Á¾·á).");
+        Debug.Log("[UltimateSkill] Finishing ultimate (ì •ìƒ ì¢…ë£Œ).");
         if (rb != null)
         {
-            rb.gravityScale = originalGravityScale; // ¿ø·¡ Áß·ÂÀ¸·Î º¹¿ø
+            rb.gravityScale = originalGravityScale; // ì›ëž˜ ì¤‘ë ¥ìœ¼ë¡œ ë³µì›
         }
         IsUltimateActive = false;
-        lastUsedTime = Time.time; // ¼º°øÀûÀ¸·Î ³¡³µÀ¸¹Ç·Î ÄðÅ¸ÀÓ ½ÃÀÛ
-        aiCore.NotifyActionEnd(); // AI Core¿¡°Ô Çàµ¿ ³¡³µÀ½À» ¾Ë¸²
+        lastUsedTime = Time.time; // ì„±ê³µì ìœ¼ë¡œ ëë‚¬ìœ¼ë¯€ë¡œ ì¿¨íƒ€ìž„ ì‹œìž‘
+        aiCore.NotifyActionEnd(); // AI Coreì—ê²Œ í–‰ë™ ëë‚¬ìŒì„ ì•Œë¦¼
         yield break;
     }
 
     /// <summary>
-    /// ¾î¶² ÀÌÀ¯·Îµç ±Ã±Ø±â°¡ Áß°£¿¡ Áß´ÜµÇ¾î¾ß ÇÒ ¶§ È£Ãâ (¿¹: º¸½º »ç¸Á)
+    /// ì–´ë–¤ ì´ìœ ë¡œë“  ê¶ê·¹ê¸°ê°€ ì¤‘ê°„ì— ì¤‘ë‹¨ë˜ì–´ì•¼ í•  ë•Œ í˜¸ì¶œ (ì˜ˆ: ë³´ìŠ¤ ì‚¬ë§)
     /// </summary>
     public IEnumerator AbortUltimate()
     {
-        Debug.Log("[UltimateSkill] Aborting ultimate (°­Á¦ Áß´Ü).");
-        // ÁøÇà ÁßÀÌ´ø ¸ðµç °ü·Ã ÄÚ·çÆ¾ ÁßÁö (ÀÌ ½ºÅ©¸³Æ® ³»¿¡¼­ Ãß°¡·Î ½ÃÀÛÇÑ ÄÚ·çÆ¾ÀÌ ÀÖ´Ù¸é)
-        // StopAllCoroutines(); // ÇöÀç ±¸Á¶¿¡¼­´Â TryStartUltimate ÇÏ³ª¸¸ ½ÇÇàµÇ¹Ç·Î, ÀÌ ¶óÀÎÀÌ ¹Ýµå½Ã ÇÊ¿äÇÏÁø ¾ÊÀ½.
-        // ¸¸¾à TryStartUltimate ³»¿¡¼­ ´Ù¸¥ ÄÚ·çÆ¾À» ½ÃÀÛÇÑ´Ù¸é °í·Á.
+        Debug.Log("[UltimateSkill] Aborting ultimate (ê°•ì œ ì¤‘ë‹¨).");
+        // ì§„í–‰ ì¤‘ì´ë˜ ëª¨ë“  ê´€ë ¨ ì½”ë£¨í‹´ ì¤‘ì§€ (ì´ ìŠ¤í¬ë¦½íŠ¸ ë‚´ì—ì„œ ì¶”ê°€ë¡œ ì‹œìž‘í•œ ì½”ë£¨í‹´ì´ ìžˆë‹¤ë©´)
+        // StopAllCoroutines(); // í˜„ìž¬ êµ¬ì¡°ì—ì„œëŠ” TryStartUltimate í•˜ë‚˜ë§Œ ì‹¤í–‰ë˜ë¯€ë¡œ, ì´ ë¼ì¸ì´ ë°˜ë“œì‹œ í•„ìš”í•˜ì§„ ì•ŠìŒ.
+
 
         if (rb != null)
         {
-            rb.gravityScale = originalGravityScale; // Áß·Â º¹¿ø ½Ãµµ
+            rb.gravityScale = originalGravityScale; // ì¤‘ë ¥ ë³µì› ì‹œë„
         }
 
-        // ÀÌ¹Ì falseÀÏ ¼ö ÀÖÁö¸¸, È®½ÇÇÏ°Ô ÇÏ±â À§ÇØ.
-        // ±×¸®°í ´Ù¸¥ °÷¿¡¼­ IsUltimateActive »óÅÂ¸¦ º¸°í Áï½Ã Áß´ÜÇÒ ¼ö ÀÖµµ·Ï.
+        // ì´ë¯¸ falseì¼ ìˆ˜ ìžˆì§€ë§Œ, í™•ì‹¤í•˜ê²Œ í•˜ê¸° ìœ„í•´.
+        // ê·¸ë¦¬ê³  ë‹¤ë¥¸ ê³³ì—ì„œ IsUltimateActive ìƒíƒœë¥¼ ë³´ê³  ì¦‰ì‹œ ì¤‘ë‹¨í•  ìˆ˜ ìžˆë„ë¡.
         IsUltimateActive = false;
 
-        // lastUsedTimeÀº ¾÷µ¥ÀÌÆ®ÇÏÁö ¾ÊÀ½ (¼º°øÀûÀ¸·Î ³¡³­ °ÍÀÌ ¾Æ´Ï¹Ç·Î ÄðÅ¸ÀÓ Àû¿ë ¾È ÇÔ ¶Ç´Â ´Ù¸¥ Á¤Ã¥)
-        // ¶Ç´Â, Áß´ÜµÇ¾îµµ ÄðÅ¸ÀÓÀ» Àû¿ëÇÏ°í ½Í´Ù¸é lastUsedTime = Time.time; Ãß°¡
+        // lastUsedTimeì€ ì—…ë°ì´íŠ¸í•˜ì§€ ì•ŠìŒ (ì„±ê³µì ìœ¼ë¡œ ëë‚œ ê²ƒì´ ì•„ë‹ˆë¯€ë¡œ ì¿¨íƒ€ìž„ ì ìš© ì•ˆ í•¨ ë˜ëŠ” ë‹¤ë¥¸ ì •ì±…)
+        // ë˜ëŠ”, ì¤‘ë‹¨ë˜ì–´ë„ ì¿¨íƒ€ìž„ì„ ì ìš©í•˜ê³  ì‹¶ë‹¤ë©´ lastUsedTime = Time.time; ì¶”ê°€
 
-        aiCore.NotifyActionEnd(); // AI Core¿¡°Ô Çàµ¿ ³¡³µÀ½À» ¾Ë¸²
+        aiCore.NotifyActionEnd(); // AI Coreì—ê²Œ í–‰ë™ ëë‚¬ìŒì„ ì•Œë¦¼
         yield break;
     }
 
