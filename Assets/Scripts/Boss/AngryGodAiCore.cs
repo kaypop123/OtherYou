@@ -1,174 +1,172 @@
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic; // Gizmos µğ¹ö±ë¿ë
+using System.Collections.Generic; // Gizmos ë””ë²„ê¹…ìš©
 
 /// <summary>
-/// º¸½º AI ½Ã½ºÅÛ Å¬·¡½º.
-/// ÇÃ·¹ÀÌ¾î ÃßÀû, °Å¸® ±â¹İ °ø°İ °áÁ¤(¹é´ë½¬ ¿¹Ãø Æ÷ÇÔ), ¹«ÀÛÀ§ °ø°İ ÆĞÅÏ ½ÇÇà,
-/// °ø°İ Áß Ãß°İ ´ë½¬, ´ë½¬/¹é´ë½¬(»ó½Â Æ÷ÇÔ) ¹× ¹æÇâ ÀüÈ¯ ¾Ö´Ï¸ŞÀÌ¼Ç Á¦¾î¸¦ ´ã´çÇÕ´Ï´Ù.
-/// ¹é´ë½¬ ÀÌµ¿Àº ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®·Î ½ÃÀÛµË´Ï´Ù. Flip ½Ã °ø°İ Äİ¶óÀÌ´õ Offsetµµ ¹İÀüµË´Ï´Ù.
+/// ë³´ìŠ¤ AI ì‹œìŠ¤í…œ í´ë˜ìŠ¤.
+/// í”Œë ˆì´ì–´ ì¶”ì , ê±°ë¦¬ ê¸°ë°˜ ê³µê²© ê²°ì •(ë°±ëŒ€ì‰¬ ì˜ˆì¸¡ í¬í•¨), ë¬´ì‘ìœ„ ê³µê²© íŒ¨í„´ ì‹¤í–‰,
+/// ê³µê²© ì¤‘ ì¶”ê²© ëŒ€ì‰¬, ëŒ€ì‰¬/ë°±ëŒ€ì‰¬(ìƒìŠ¹ í¬í•¨) ë° ë°©í–¥ ì „í™˜ ì• ë‹ˆë©”ì´ì…˜ ì œì–´ë¥¼ ë‹´ë‹¹í•©ë‹ˆë‹¤.
+/// ë°±ëŒ€ì‰¬ ì´ë™ì€ ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ë¡œ ì‹œì‘ë©ë‹ˆë‹¤. Flip ì‹œ ê³µê²© ì½œë¼ì´ë” Offsetë„ ë°˜ì „ë©ë‹ˆë‹¤.
 /// </summary>
- [RequireComponent(typeof(AngryGodActiveSkill1))] // ¾×Æ¼ºê ½ºÅ³ ½ºÅ©¸³Æ® ÇÊ¼ö
+ [RequireComponent(typeof(AngryGodActiveSkill1))] // ì•¡í‹°ë¸Œ ìŠ¤í‚¬ ìŠ¤í¬ë¦½íŠ¸ í•„ìˆ˜
 [RequireComponent(typeof(AngryGodUltimateSkill))]
 public class AngryGodAiCore : MonoBehaviour
 {
-    #region º¯¼ö ¼±¾ğ
+    #region ë³€ìˆ˜ ì„ ì–¸
 
-    // --- ÄÄÆ÷³ÍÆ® ÂüÁ¶ ---
+    // --- ì»´í¬ë„ŒíŠ¸ ì°¸ì¡° ---
     private Animator animator;
     private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
-    private AngryGodActiveSkill1 activeSkill1; // ¡Ú Ãß°¡: ¾×Æ¼ºê ½ºÅ³ ½ºÅ©¸³Æ® ÂüÁ¶
+    private AngryGodActiveSkill1 activeSkill1; //  ì•¡í‹°ë¸Œ ìŠ¤í‚¬ ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡°
 
-    // --- ÇÃ·¹ÀÌ¾î °ü·Ã ---
-    [Header("ÇÃ·¹ÀÌ¾î ÂüÁ¶")]
-    private Transform target; // °¡Àå °¡±î¿î Å¸°Ù
-    private SpriteRenderer targetSpriteRenderer; // Å¸°ÙÀÇ ½ºÇÁ¶óÀÌÆ® ·»´õ·¯ ÀúÀå
+    // --- í”Œë ˆì´ì–´ ê´€ë ¨ ---
+    [Header("í”Œë ˆì´ì–´ ì°¸ì¡°")]
+    private Transform target; // ê°€ì¥ ê°€ê¹Œìš´ íƒ€ê²Ÿ
+    private SpriteRenderer targetSpriteRenderer; // íƒ€ê²Ÿì˜ ìŠ¤í”„ë¼ì´íŠ¸ ë Œë”ëŸ¬ ì €ì¥
 
-    // --- AI Çàµ¿ ¼³Á¤ ---
-    [Header("AI Çàµ¿ ¼³Á¤")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î¸¦ Å½ÁöÇÏ±â ½ÃÀÛÇÏ´Â ÃÖ´ë °Å¸®")]
+    // --- AI í–‰ë™ ì„¤ì • ---
+    [Header("AI í–‰ë™ ì„¤ì •")]
+    [Tooltip("í”Œë ˆì´ì–´ë¥¼ íƒì§€í•˜ê¸° ì‹œì‘í•˜ëŠ” ìµœëŒ€ ê±°ë¦¬")]
     public float detectRange = 10f;
-    [Tooltip("ÀÌ °Å¸® ¾È¿¡ ÇÃ·¹ÀÌ¾î°¡ µé¾î¿À¸é °ø°İÀ» ½ÃÀÛ")]
+    [Tooltip("ì´ ê±°ë¦¬ ì•ˆì— í”Œë ˆì´ì–´ê°€ ë“¤ì–´ì˜¤ë©´ ê³µê²©ì„ ì‹œì‘")]
     public float attackRange = 2.5f;
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ÀÌ °Å¸®º¸´Ù °¡±î¿öÁö°í Æ¯Á¤ Á¶°ÇÀ» ¸¸Á·ÇÏ¸é ¹é´ë½¬ ½ÇÇà")]
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ì´ ê±°ë¦¬ë³´ë‹¤ ê°€ê¹Œì›Œì§€ê³  íŠ¹ì • ì¡°ê±´ì„ ë§Œì¡±í•˜ë©´ ë°±ëŒ€ì‰¬ ì‹¤í–‰")]
     public float backdashRange = 1.5f;
-    [Tooltip("°ø°İ Áß ÇÃ·¹ÀÌ¾î°¡ ÀÌ °Å¸®º¸´Ù ¸Ö¾îÁö¸é Ãß°İ ´ë½¬ ½ÃÀÛ")]
+    [Tooltip("ê³µê²© ì¤‘ í”Œë ˆì´ì–´ê°€ ì´ ê±°ë¦¬ë³´ë‹¤ ë©€ì–´ì§€ë©´ ì¶”ê²© ëŒ€ì‰¬ ì‹œì‘")]
     public float chaseDashTriggerRange = 3.0f;
-    [Tooltip("¾×Æ¼ºê ½ºÅ³ 1À» »ç¿ëÇÒ Á¶°ÇÀ» ¸¸Á·ÇÏ´Â °Å¸® (¿¹½Ã)")] // ¡Ú Ãß°¡
-    public float activeSkill1TriggerRange = 8f; // ¿¹½Ã: Å½Áö ¹üÀ§ ³» Æ¯Á¤ °Å¸®
+    [Tooltip("ì•¡í‹°ë¸Œ ìŠ¤í‚¬ 1ì„ ì‚¬ìš©í•  ì¡°ê±´ì„ ë§Œì¡±í•˜ëŠ” ê±°ë¦¬ (ì˜ˆì‹œ)")] // â˜… ì¶”ê°€
+    public float activeSkill1TriggerRange = 8f; // ì˜ˆì‹œ: íƒì§€ ë²”ìœ„ ë‚´ íŠ¹ì • ê±°ë¦¬
     private BossSummoner bossSummoner;
-    private float globalActionCooldownTime = -99f; // °ø¿ë ÄğÅ¸ÀÓ ½ÃÀÛ
-    private bool isAwakening = false; // °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç ÁßÀÎÁö ¿©ºÎ
-    private bool awakeningRequested = false; // BossHurt·ÎºÎÅÍ °¢¼º ¿äÃ»À» ¹Ş¾Ò´ÂÁö ¿©ºÎ
-    public float awakeningAnimationDuration = 3.0f; // °¢¼º ¾Ö´Ï¸ŞÀÌ¼ÇÀÇ ¿¹»ó ±æÀÌ (ÀÎ½ºÆåÅÍ¿¡¼­ Á¶Àı °¡´ÉÇÏ°Ô publicÀ¸·Î)
+    private float globalActionCooldownTime = -99f; // ê³µìš© ì¿¨íƒ€ì„ ì‹œì‘
+    private bool isAwakening = false; // ê°ì„± ì• ë‹ˆë©”ì´ì…˜ ì¤‘ì¸ì§€ ì—¬ë¶€
+    private bool awakeningRequested = false; // BossHurtë¡œë¶€í„° ê°ì„± ìš”ì²­ì„ ë°›ì•˜ëŠ”ì§€ ì—¬ë¶€
+    public float awakeningAnimationDuration = 3.0f; // ê°ì„± ì• ë‹ˆë©”ì´ì…˜ì˜ ì˜ˆìƒ ê¸¸ì´ (ì¸ìŠ¤í™í„°ì—ì„œ ì¡°ì ˆ ê°€ëŠ¥í•˜ê²Œ publicìœ¼ë¡œ)
     private BossHurt bossHurt;
-    // --- ÀÌµ¿ ¼³Á¤ ---
-    [Header("ÀÌµ¿ ¼³Á¤")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î ÃßÀû ½Ã ±âº» ÀÌµ¿ ¼Óµµ")]
-    [SerializeField] private float moveSpeed = 2f; // Ãß°İ ´ë½¬ °è»ê¿ë
+    // --- ì´ë™ ì„¤ì • ---
+    [Header("ì´ë™ ì„¤ì •")]
+    [Tooltip("í”Œë ˆì´ì–´ ì¶”ì  ì‹œ ê¸°ë³¸ ì´ë™ ì†ë„")]
+    [SerializeField] private float moveSpeed = 2f; // ì¶”ê²© ëŒ€ì‰¬ ê³„ì‚°ìš©
 
-    // --- ´ë½¬ ¼³Á¤ ---
-    [Header("´ë½¬ ¼³Á¤")]
-    [Tooltip("Àü¹æ/ÈÄ¹æ ´ë½¬ ½Ã ÀÌµ¿ÇÒ ±âº» °Å¸®")]
+    // --- ëŒ€ì‰¬ ì„¤ì • ---
+    [Header("ëŒ€ì‰¬ ì„¤ì •")]
+    [Tooltip("ì „ë°©/í›„ë°© ëŒ€ì‰¬ ì‹œ ì´ë™í•  ê¸°ë³¸ ê±°ë¦¬")]
     public float dashDistance = 3f;
-    [Tooltip("Àü¹æ/ÈÄ¹æ ´ë½¬°¡ Áö¼ÓµÇ´Â ½Ã°£")]
+    [Tooltip("ì „ë°©/í›„ë°© ëŒ€ì‰¬ê°€ ì§€ì†ë˜ëŠ” ì‹œê°„")]
     public float dashDuration = 0.3f;
-    [Tooltip("¹é´ë½¬ ½Ã À§ÂÊÀ¸·Î ÀÌµ¿ÇÏ´Â Á¤µµ (0: ¼öÆò, 1: 45µµ À§)")]
+    [Tooltip("ë°±ëŒ€ì‰¬ ì‹œ ìœ„ìª½ìœ¼ë¡œ ì´ë™í•˜ëŠ” ì •ë„ (0: ìˆ˜í‰, 1: 45ë„ ìœ„)")]
     [Range(0f, 1f)]
     [SerializeField] private float backdashUpwardFactor = 0.3f;
-    [Tooltip("°ø°İ Áß Ãß°İ ´ë½¬ ½Ã ÀÌµ¿ ¼Óµµ ¹èÀ² (moveSpeed ±âÁØ)")]
+    [Tooltip("ê³µê²© ì¤‘ ì¶”ê²© ëŒ€ì‰¬ ì‹œ ì´ë™ ì†ë„ ë°°ìœ¨ (moveSpeed ê¸°ì¤€)")]
     public float chaseDashSpeedMultiplier = 1.5f;
-    [Tooltip("°ø°İ Áß Ãß°İ ´ë½¬ Áö¼Ó ½Ã°£ (ÃÊ)")]
+    [Tooltip("ê³µê²© ì¤‘ ì¶”ê²© ëŒ€ì‰¬ ì§€ì† ì‹œê°„ (ì´ˆ)")]
     public float chaseDashDuration = 0.2f;
 
-    // --- ´ë½¬ ÀÌÆåÆ® ---
-    [Header("´ë½¬ ÀÌÆåÆ®")]
-    [Tooltip("´ë½¬ ½Ã »ç¿ëÇÒ Trail Renderer ÄÄÆ÷³ÍÆ®")]
+    // --- ëŒ€ì‰¬ ì´í™íŠ¸ ---
+    [Header("ëŒ€ì‰¬ ì´í™íŠ¸")]
+    [Tooltip("ëŒ€ì‰¬ ì‹œ ì‚¬ìš©í•  Trail Renderer ì»´í¬ë„ŒíŠ¸")]
     [SerializeField] private TrailRenderer dashTrail;
-    [Tooltip("ÀÜ»óÀÌ »ı¼ºµÇ´Â °£°İ (ÃÊ)")]
+    [Tooltip("ì”ìƒì´ ìƒì„±ë˜ëŠ” ê°„ê²© (ì´ˆ)")]
     [SerializeField] private float afterImageInterval = 0.05f;
-    [Tooltip("ÀÜ»óÀÌ »ç¶óÁö±â±îÁö °É¸®´Â ½Ã°£ (ÃÊ)")]
+    [Tooltip("ì”ìƒì´ ì‚¬ë¼ì§€ê¸°ê¹Œì§€ ê±¸ë¦¬ëŠ” ì‹œê°„ (ì´ˆ)")]
     [SerializeField] private float afterImageLifetime = 0.5f;
 
-    [Header("±Ã±Ø±â °ø°İ ¹Ú½º")]
-    [SerializeField] private Transform ultimateAttackBoxObject; // ±Ã±Ø±â Äİ¶óÀÌ´õ°¡ ºÙÀº ¿ÀºêÁ§Æ®
-    private BoxCollider2D ultimateAttackCollider; // ±Ã±Ø±â¿ë Äİ¶óÀÌ´õ
+    [Header("ê¶ê·¹ê¸° ê³µê²© ë°•ìŠ¤")]
+    [SerializeField] private Transform ultimateAttackBoxObject; // ê¶ê·¹ê¸° ì½œë¼ì´ë”ê°€ ë¶™ì€ ì˜¤ë¸Œì íŠ¸
+    private BoxCollider2D ultimateAttackCollider; // ê¶ê·¹ê¸°ìš© ì½œë¼ì´ë”
 
-    // --- °ø°İ ¼³Á¤ ---
-    [Header("°ø°İ ¼³Á¤")]
-    [Tooltip("°ø°İ ½ÇÇà ÈÄ ´ÙÀ½ Çàµ¿±îÁöÀÇ ´ë±â ½Ã°£")]
+    // --- ê³µê²© ì„¤ì • ---
+    [Header("ê³µê²© ì„¤ì •")]
+    [Tooltip("ê³µê²© ì‹¤í–‰ í›„ ë‹¤ìŒ í–‰ë™ê¹Œì§€ì˜ ëŒ€ê¸° ì‹œê°„")]
     public float attackCooldown = 0.8f;
-    [Tooltip("°ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ ÈÄ ½ÇÁ¦ µ¥¹ÌÁö ÆÇÁ¤ÀÌ ¹ß»ıÇÏ´Â ½ÃÁ¡ (ÃÊ)")]
+    [Tooltip("ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ í›„ ì‹¤ì œ ë°ë¯¸ì§€ íŒì •ì´ ë°œìƒí•˜ëŠ” ì‹œì  (ì´ˆ)")]
     [SerializeField] private float attackHitTiming = 0.5f;
-    [Tooltip("°ø°İ ÆÇÁ¤¿¡ »ç¿ëÇÒ BoxCollider2D°¡ ÀÖ´Â ÀÚ½Ä ¿ÀºêÁ§Æ®")]
-    [SerializeField] private Transform attackBoxObject; // °ø°İ ¹Ú½º ¿ÀºêÁ§Æ® ÂüÁ¶
-    private BoxCollider2D attackCollider; // °ø°İ ¹Ú½º Äİ¶óÀÌ´õ ÂüÁ¶
+    [Tooltip("ê³µê²© íŒì •ì— ì‚¬ìš©í•  BoxCollider2Dê°€ ìˆëŠ” ìì‹ ì˜¤ë¸Œì íŠ¸")]
+    [SerializeField] private Transform attackBoxObject; // ê³µê²© ë°•ìŠ¤ ì˜¤ë¸Œì íŠ¸ ì°¸ì¡°
+    private BoxCollider2D attackCollider; // ê³µê²© ë°•ìŠ¤ ì½œë¼ì´ë” ì°¸ì¡°
 
 
-    // --- ³»ºÎ »óÅÂ º¯¼ö ---
+    // --- ë‚´ë¶€ ìƒíƒœ ë³€ìˆ˜ ---
     private bool isActing = false;
     private bool facingRight = true;
     private bool isDashing = false;
     private bool isChaseDashing = false;
-    [Header("AI Çàµ¿ È®·ü")] // ¡Ú Ãß°¡: È®·ü °ü·Ã º¯¼ö ±×·ì
-    [Tooltip("¹é´ë½¬ ¹üÀ§ ³»¿¡¼­ ¹é´ë½¬¸¦ ½ÃµµÇÒ È®·ü (0.0 ~ 1.0)")]
+    [Header("AI í–‰ë™ í™•ë¥ ")] //  í™•ë¥  ê´€ë ¨ ë³€ìˆ˜ ê·¸ë£¹
+    [Tooltip("ë°±ëŒ€ì‰¬ ë²”ìœ„ ë‚´ì—ì„œ ë°±ëŒ€ì‰¬ë¥¼ ì‹œë„í•  í™•ë¥  (0.0 ~ 1.0)")]
     [Range(0f, 1f)]
-    [SerializeField] private float backdashProbability = 0.6f; // ¿¹: 60% È®·ü·Î ¹é´ë½¬
+    [SerializeField] private float backdashProbability = 0.6f; // ì˜ˆ: 60% í™•ë¥ ë¡œ ë°±ëŒ€ì‰¬
     private AngryGodFlameSkill flameSkill;
     private AngryGodUltimateSkill ultimateSkill;
     #endregion
 
-    #region À¯´ÏÆ¼ »ı¸íÁÖ±â ¸Ş¼­µå
+    #region ìœ ë‹ˆí‹° ìƒëª…ì£¼ê¸° ë©”ì„œë“œ
 
     void Start()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        activeSkill1 = GetComponent<AngryGodActiveSkill1>(); // ¡Ú Ãß°¡: ¾×Æ¼ºê ½ºÅ³ ÂüÁ¶ °¡Á®¿À±â
+        activeSkill1 = GetComponent<AngryGodActiveSkill1>(); //  ì•¡í‹°ë¸Œ ìŠ¤í‚¬ ì°¸ì¡° ê°€ì ¸ì˜¤ê¸°
         bossSummoner = GetComponent<BossSummoner>();
         flameSkill = GetComponent<AngryGodFlameSkill>();
         ultimateSkill = GetComponent<AngryGodUltimateSkill>();
         bossHurt = GetComponent<BossHurt>();
-        // ÇÊ¼ö ÄÄÆ÷³ÍÆ® È®ÀÎ
-        if (animator == null || rb == null || spriteRenderer == null || activeSkill1 == null) // ¡Ú ¼öÁ¤: activeSkill1 Ãß°¡
+        // í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ í™•ì¸
+        if (animator == null || rb == null || spriteRenderer == null || activeSkill1 == null) // â˜… ìˆ˜ì •: activeSkill1 ì¶”ê°€
         {
          
             this.enabled = false; return;
         }
 
-        if (animator == null || rb == null || spriteRenderer == null) { Debug.LogError("ÇÊ¼ö ÄÄÆ÷³ÍÆ® ¾øÀ½!", this); this.enabled = false; return; }
-        if (dashTrail != null) dashTrail.emitting = false; else Debug.LogWarning("Dash Trail ¾øÀ½", this);
+        if (animator == null || rb == null || spriteRenderer == null) { Debug.LogError("í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ ì—†ìŒ!", this); this.enabled = false; return; }
+        if (dashTrail != null) dashTrail.emitting = false; else Debug.LogWarning("Dash Trail ì—†ìŒ", this);
 
-        // °ø°İ Äİ¶óÀÌ´õ ÃÊ±âÈ­ ¹× È®ÀÎ
+        // ê³µê²© ì½œë¼ì´ë” ì´ˆê¸°í™” ë° í™•ì¸
         if (attackBoxObject != null)
         {
             attackCollider = attackBoxObject.GetComponent<BoxCollider2D>();
-            if (attackCollider == null) Debug.LogError("Attack Box Object¿¡ BoxCollider2D°¡ ¾ø½À´Ï´Ù!", attackBoxObject);
+            if (attackCollider == null) Debug.LogError("Attack Box Objectì— BoxCollider2Dê°€ ì—†ìŠµë‹ˆë‹¤!", attackBoxObject);
         }
-        else Debug.LogError("Attack Box Object°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!", this);
+        else Debug.LogError("Attack Box Objectê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!", this);
 
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        // facingRight = !spriteRenderer.flipX; // ÃÊ±â ¹æÇâ ¼³Á¤
+        // facingRight = !spriteRenderer.flipX; // ì´ˆê¸° ë°©í–¥ ì„¤ì •
         if (ultimateAttackBoxObject != null)
         {
             ultimateAttackCollider = ultimateAttackBoxObject.GetComponent<BoxCollider2D>();
             if (ultimateAttackCollider == null)
-                Debug.LogError("Ultimate Attack Box Object¿¡ BoxCollider2D°¡ ¾ø½À´Ï´Ù!", ultimateAttackBoxObject);
+                Debug.LogError("Ultimate Attack Box Objectì— BoxCollider2Dê°€ ì—†ìŠµë‹ˆë‹¤!", ultimateAttackBoxObject);
         }
     }
 
     void Update()
     {
-        // ¡Ú¡Ú¡Ú µğ¹ö±ë ·Î±× (ÇÊ¿ä½Ã À¯Áö) ¡Ú¡Ú¡Ú
-        // Debug.Log($"[AI Update Check] Time: {Time.time}, isActing: {isActing}, isChaseDashing: {isChaseDashing}, isAwakening: {isAwakening}, activeSkill1 Active: {(activeSkill1 != null && activeSkill1.IsSkillActive)}, ultimateSkill Active: {(ultimateSkill != null && ultimateSkill.IsUltimateActive)}, awakeningRequested: {awakeningRequested}");
+        
+    
 
-        // --- 1. °¢¼º ¿äÃ»ÀÌ ÀÖ´Ù¸é, ´Ù¸¥ ¸ğµç ·ÎÁ÷º¸´Ù ¿ì¼± Ã³¸® ---
+        // --- 1. ê°ì„± ìš”ì²­ì´ ìˆë‹¤ë©´, ë‹¤ë¥¸ ëª¨ë“  ë¡œì§ë³´ë‹¤ ìš°ì„  ì²˜ë¦¬ ---
         if (awakeningRequested)
         {
-            if (!IsCurrentlyActingOrSkillActive()) // ÇöÀç ´Ù¸¥ 'Áß¿äÇÑ' Çàµ¿À» ÇÏ°í ÀÖÁö ¾ÊÀ» ¶§¸¸
+            if (!IsCurrentlyActingOrSkillActive()) // í˜„ì¬ ë‹¤ë¥¸ 'ì¤‘ìš”í•œ' í–‰ë™ì„ í•˜ê³  ìˆì§€ ì•Šì„ ë•Œë§Œ
             {
                 Debug.Log("[AI Update Check] Awakening requested and idle. Preparing awakening backdash NOW.");
-                PrepareAndExecuteAwakeningBackdash(); // °¢¼º ¹é´ë½¬ ÁØºñ
+                PrepareAndExecuteAwakeningBackdash(); // ê°ì„± ë°±ëŒ€ì‰¬ ì¤€ë¹„
             }
-            // else: ÇöÀç ´Ù¸¥ Áß¿äÇÑ Çàµ¿ ÁßÀÌ¶ó¸é, ÇØ´ç Çàµ¿ÀÌ ³¡³­ ÈÄ ´ÙÀ½ Update¿¡¼­ ´Ù½Ã ÀÌ Á¶°ÇÀ» Ã¼Å©.
-            //       (IsCurrentlyActingOrSkillActive()°¡ false°¡ µÉ ¶§±îÁö)
+            // else: í˜„ì¬ ë‹¤ë¥¸ ì¤‘ìš”í•œ í–‰ë™ ì¤‘ì´ë¼ë©´, í•´ë‹¹ í–‰ë™ì´ ëë‚œ í›„ ë‹¤ìŒ Updateì—ì„œ ë‹¤ì‹œ ì´ ì¡°ê±´ì„ ì²´í¬.
+            //       (IsCurrentlyActingOrSkillActive()ê°€ falseê°€ ë  ë•Œê¹Œì§€)
 
-            return; // ¡Ú¡Ú¡Ú °¢¼º ¿äÃ»ÀÌ ÀÖ´Â µ¿¾È¿¡´Â ¾Æ·¡ÀÇ ÀÏ¹İ AI ·ÎÁ÷À» ½ÇÇàÇÏÁö ¾ÊÀ½ ¡Ú¡Ú¡Ú
+            return; //  ê°ì„± ìš”ì²­ì´ ìˆëŠ” ë™ì•ˆì—ëŠ” ì•„ë˜ì˜ ì¼ë°˜ AI ë¡œì§ì„ ì‹¤í–‰í•˜ì§€ ì•ŠìŒ
         }
 
-        // --- 2. °¢¼º ¿äÃ»ÀÌ ¾øÀ» ¶§, ÇöÀç ´Ù¸¥ 'Áß¿äÇÑ' Çàµ¿(½ºÅ³, °¢¼º, isActing µî) ÁßÀÌ¸é Update Á¾·á ---
-        // ÀÌ Á¶°ÇÀº isActing, isAwakening, °¢ ½ºÅ³µéÀÇ IsActive »óÅÂ¸¦ ¸ğµÎ Æ÷ÇÔÇØ¾ß ÇÕ´Ï´Ù.
-        // IsCurrentlyActingOrSkillActive() ÇÔ¼ö°¡ ÀÌ ¿ªÇÒÀ» ÇÕ´Ï´Ù.
+        // --- 2. ê°ì„± ìš”ì²­ì´ ì—†ì„ ë•Œ, í˜„ì¬ ë‹¤ë¥¸ 'ì¤‘ìš”í•œ' í–‰ë™(ìŠ¤í‚¬, ê°ì„±, isActing ë“±) ì¤‘ì´ë©´ Update ì¢…ë£Œ ---
         if (IsCurrentlyActingOrSkillActive())
         {
             // Debug.Log("[AI Update Check] Currently acting or skill active. Returning from Update.");
             return;
         }
 
-        // --- 3. ÀÏ¹İ AI Çàµ¿ °áÁ¤ ·ÎÁ÷ (°¢¼º ¿äÃ»µµ ¾ø°í, ´Ù¸¥ Áß¿ä Çàµ¿µµ ¾øÀ» ¶§¸¸ ¿©±â±îÁö µµ´Ş) ---
-        // ÀÌ ½ÃÁ¡¿¡¼­´Â isActing = false, isAwakening = false, ¸ğµç ½ºÅ³ IsActive = false »óÅÂ¿©¾ß ÇÕ´Ï´Ù.
+        // --- 3. ì¼ë°˜ AI í–‰ë™ ê²°ì • ë¡œì§ (ê°ì„± ìš”ì²­ë„ ì—†ê³ , ë‹¤ë¥¸ ì¤‘ìš” í–‰ë™ë„ ì—†ì„ ë•Œë§Œ ì—¬ê¸°ê¹Œì§€ ë„ë‹¬) ---
+
 
         FindClosestTarget();
         if (target == null) { /* Debug.Log("[AI Core] Target is null."); */ return; }
@@ -178,7 +176,7 @@ public class AngryGodAiCore : MonoBehaviour
 
         bool decidedAction = false;
 
-        // ÀÏ¹İ ¹é´ë½¬ °áÁ¤ (awakeningRequested°¡ falseÀÏ ¶§¸¸ °í·ÁµÊ)
+        // ì¼ë°˜ ë°±ëŒ€ì‰¬ ê²°ì • (awakeningRequestedê°€ falseì¼ ë•Œë§Œ ê³ ë ¤ë¨)
         if (!decidedAction && distance < backdashRange)
         {
             float randomValue = Random.value;
@@ -192,7 +190,7 @@ public class AngryGodAiCore : MonoBehaviour
             }
             else if (shouldBackdash)
             {
-                PrepareBackdash(); // ÀÏ¹İ ¹é´ë½¬ (°¢¼º ¹é´ë½¬¿Í ´Ù¸§)
+                PrepareBackdash(); // ì¼ë°˜ ë°±ëŒ€ì‰¬ (ê°ì„± ë°±ëŒ€ì‰¬ì™€ ë‹¤ë¦„)
                 decidedAction = true;
             }
             else
@@ -202,7 +200,7 @@ public class AngryGodAiCore : MonoBehaviour
             }
         }
 
-        // ÀÏ¹İ °ø°İ
+        // ì¼ë°˜ ê³µê²©
         bool inAttackRange = !decidedAction && distance < attackRange;
         if (inAttackRange)
         {
@@ -210,11 +208,11 @@ public class AngryGodAiCore : MonoBehaviour
             decidedAction = true;
         }
 
-        // Á¢±Ù ´ë½¬
+        // ì ‘ê·¼ ëŒ€ì‰¬
         bool inDetectRange = !decidedAction && distance < detectRange;
         if (inDetectRange)
         {
-            StartCoroutine(DashRoutine(1)); // ÀÏ¹İ Àü¹æ ´ë½¬
+            StartCoroutine(DashRoutine(1)); // ì¼ë°˜ ì „ë°© ëŒ€ì‰¬
             decidedAction = true;
         }
 
@@ -227,8 +225,8 @@ public class AngryGodAiCore : MonoBehaviour
 
     #endregion
 
-    #region Å¸°Ù Ã£±â ¹× ¹æÇâ ÀüÈ¯
-    // °¡Àå °¡±î¿î È°¼ºÈ­µÈ ÇÃ·¹ÀÌ¾î Å¸°Ù°ú ±× SpriteRenderer Ã£±â
+    #region íƒ€ê²Ÿ ì°¾ê¸° ë° ë°©í–¥ ì „í™˜
+    // ê°€ì¥ ê°€ê¹Œìš´ í™œì„±í™”ëœ í”Œë ˆì´ì–´ íƒ€ê²Ÿê³¼ ê·¸ SpriteRenderer ì°¾ê¸°
     void FindClosestTarget()
     {
         GameObject adam = GameObject.FindWithTag("Player");
@@ -239,7 +237,7 @@ public class AngryGodAiCore : MonoBehaviour
         target = closestTarget; targetSpriteRenderer = closestSprite;
     }
 
-    // Å¸°Ù ¹æÇâÀ¸·Î ½ºÇÁ¶óÀÌÆ® ¹× °ø°İ Äİ¶óÀÌ´õ Offset µÚÁı±â
+    // íƒ€ê²Ÿ ë°©í–¥ìœ¼ë¡œ ìŠ¤í”„ë¼ì´íŠ¸ ë° ê³µê²© ì½œë¼ì´ë” Offset ë’¤ì§‘ê¸°
     void FlipTowardsTarget(bool forceFlip = false)
     {
         if (target == null) return;
@@ -249,15 +247,15 @@ public class AngryGodAiCore : MonoBehaviour
         {
             facingRight = shouldFaceRight;
 
-            // 1. ½ºÇÁ¶óÀÌÆ® ¹İÀü
+            // 1. ìŠ¤í”„ë¼ì´íŠ¸ ë°˜ì „
             if (spriteRenderer != null)
                 spriteRenderer.flipX = !facingRight;
 
-            // 2. BoxCollider2D Offset ¹İÀü
+            // 2. BoxCollider2D Offset ë°˜ì „
             if (attackCollider != null)
             {
                 Vector2 offset = attackCollider.offset;
-                offset.x = Mathf.Abs(offset.x) * (facingRight ? 1 : -1); // Àı´ë°ª¿¡ ¹æÇâ °öÇÏ±â
+                offset.x = Mathf.Abs(offset.x) * (facingRight ? 1 : -1); // ì ˆëŒ€ê°’ì— ë°©í–¥ ê³±í•˜ê¸°
                 attackCollider.offset = offset;
             }
             if (ultimateAttackCollider != null)
@@ -271,74 +269,70 @@ public class AngryGodAiCore : MonoBehaviour
     }
     #endregion
 
-    #region Çàµ¿ ÄÚ·çÆ¾ (´ë½¬, °ø°İ, Ãß°İ ´ë½¬)
+    #region í–‰ë™ ì½”ë£¨í‹´ (ëŒ€ì‰¬, ê³µê²©, ì¶”ê²© ëŒ€ì‰¬)
 
     /// <summary>
-    /// ÀÏ¹İ Àü¹æ ´ë½¬ ¶Ç´Â ¹é´ë½¬(»ó½Â Æ÷ÇÔ)¸¦ ½ÇÇàÇÏ´Â ÄÚ·çÆ¾.
+    /// ì¼ë°˜ ì „ë°© ëŒ€ì‰¬ ë˜ëŠ” ë°±ëŒ€ì‰¬(ìƒìŠ¹ í¬í•¨)ë¥¼ ì‹¤í–‰í•˜ëŠ” ì½”ë£¨í‹´.
     /// </summary>
-    IEnumerator DashRoutine(int direction) // 1 = ¾ÕÀ¸·Î, -1 = µÚ·Î
+    IEnumerator DashRoutine(int direction) // 1 = ì•ìœ¼ë¡œ, -1 = ë’¤ë¡œ
     {
         isActing = true;
         isDashing = true;
         animator.SetTrigger(direction == 1 ? "Dash" : "Backdash");
 
-        // ÀÌÆåÆ® ½ÃÀÛ
+        // ì´í™íŠ¸ ì‹œì‘
         if (dashTrail != null) dashTrail.emitting = true;
         StartCoroutine(LeaveAfterImage());
 
-        // --- ¡Ú¡Ú¡Ú ´ë½¬ ¹æÇâ ¹× °Å¸® °è»ê ¼öÁ¤ ¡Ú¡Ú¡Ú ---
-        Vector2 dashDir;
-        // ¡Ú¡Ú¡Ú ¼öÁ¤: Àü¹æ/ÈÄ¹æ ¸ğµÎ ±âº»ÀûÀ¸·Î dashDistance »ç¿ë ¡Ú¡Ú¡Ú
-        float distanceToMove = dashDistance; // ±âº» ÀÌµ¿ °Å¸®¸¦ ¸ÕÀú ¼³Á¤
 
-        if (direction == 1) // Àü¹æ ´ë½¬
+        Vector2 dashDir;
+        float distanceToMove = dashDistance; // ê¸°ë³¸ ì´ë™ ê±°ë¦¬ë¥¼ ë¨¼ì € ì„¤ì •
+
+        if (direction == 1) // ì „ë°© ëŒ€ì‰¬
         {
             if (target != null)
             {
-                // ÀÌµ¿ ¹æÇâÀº Å¸°Ù ¹æÇâ
+                // ì´ë™ ë°©í–¥ì€ íƒ€ê²Ÿ ë°©í–¥
                 dashDir = ((Vector2)target.position - rb.position).normalized;
-                FlipTowardsTarget(true); // Å¸°Ù ¹æÇâ º¸±â
-                // ¡Ú »èÁ¦: ¸ñÇ¥ ÁöÁ¡ °è»ê ¹× °Å¸® Àç°è»ê ·ÎÁ÷ Á¦°Å
-                // Vector2 targetStopPosition = (Vector2)target.position - dirToPlayer * attackRange;
-                // distanceToMove = Vector2.Distance(rb.position, targetStopPosition);
-                // float dot = Vector2.Dot(dirToPlayer, targetStopPosition - rb.position);
-                // if (dot <= 0 || distanceToMove < 0.1f) distanceToMove = 0.1f;
+                FlipTowardsTarget(true); // íƒ€ê²Ÿ ë°©í–¥ ë³´ê¸°
+           
+
             }
-            else // Å¸°Ù ¾øÀ¸¸é ÇöÀç ¹æÇâÀ¸·Î ±âº» °Å¸®¸¸Å­
+            else // íƒ€ê²Ÿ ì—†ìœ¼ë©´ í˜„ì¬ ë°©í–¥ìœ¼ë¡œ ê¸°ë³¸ ê±°ë¦¬ë§Œí¼
             {
                 dashDir = facingRight ? Vector2.right : Vector2.left;
-                // distanceToMove = dashDistance; // ÀÌ¹Ì À§¿¡¼­ ¼³Á¤µÊ
+                // distanceToMove = dashDistance; // ì´ë¯¸ ìœ„ì—ì„œ ì„¤ì •ë¨
             }
         }
-        else // ¹é´ë½¬ (direction == -1)
+        else // ë°±ëŒ€ì‰¬ (direction == -1)
         {
             Vector2 backwardDir = facingRight ? Vector2.left : Vector2.right;
             Vector2 upwardDir = Vector2.up * backdashUpwardFactor;
             dashDir = (backwardDir + upwardDir).normalized;
-            // distanceToMove = dashDistance; // ¹é´ë½¬´Â Ç×»ó °íÁ¤ °Å¸® (À§¿¡¼­ ¼³Á¤µÊ)
+            // distanceToMove = dashDistance; // ë°±ëŒ€ì‰¬ëŠ” í•­ìƒ ê³ ì • ê±°ë¦¬ (ìœ„ì—ì„œ ì„¤ì •ë¨)
         }
-        // --- °è»ê ·ÎÁ÷ ³¡ ---
+        // --- ê³„ì‚° ë¡œì§ ë ---
 
-        // --- ÀÌµ¿ ½ÇÇà ---
-        // ¼Óµµ °è»ê (¼³Á¤µÈ °Å¸®¿Í ½Ã°£ »ç¿ë)
+        // --- ì´ë™ ì‹¤í–‰ ---
+        // ì†ë„ ê³„ì‚° (ì„¤ì •ëœ ê±°ë¦¬ì™€ ì‹œê°„ ì‚¬ìš©)
         float currentDashSpeed = (dashDuration > 0.01f) ? distanceToMove / dashDuration : 0;
         rb.velocity = dashDir * currentDashSpeed;
 
         yield return new WaitForSeconds(dashDuration);
 
-        // --- Á¾·á Ã³¸® ---
+        // --- ì¢…ë£Œ ì²˜ë¦¬ ---
         rb.velocity = Vector2.zero;
         isDashing = false;
         if (dashTrail != null) dashTrail.emitting = false;
-        yield return new WaitForSeconds(0.3f); // µô·¹ÀÌ
+        yield return new WaitForSeconds(0.3f); // ë”œë ˆì´
         isActing = false;
         yield break;
     }
 
-    // ¹é´ë½¬ ÁØºñ ÇÔ¼ö (¾Ö´Ï¸ŞÀÌ¼Ç¸¸ Æ®¸®°Å)
+    // ë°±ëŒ€ì‰¬ ì¤€ë¹„ í•¨ìˆ˜ (ì• ë‹ˆë©”ì´ì…˜ë§Œ íŠ¸ë¦¬ê±°)
     private void PrepareBackdash()
     {
-        if (isActing || isChaseDashing) return; // Áßº¹ ¹æÁö Áß¿ä
+        if (isActing || isChaseDashing) return; // ì¤‘ë³µ ë°©ì§€ ì¤‘ìš”
         isActing = true;
         rb.velocity = Vector2.zero;
         FlipTowardsTarget(true);
@@ -346,27 +340,27 @@ public class AngryGodAiCore : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®¿¡¼­ È£ÃâµÉ ÇÔ¼ö. ½ÇÁ¦ ¹é´ë½¬ ÀÌµ¿À» ½ÃÀÛÇÕ´Ï´Ù.
+    /// ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ì—ì„œ í˜¸ì¶œë  í•¨ìˆ˜. ì‹¤ì œ ë°±ëŒ€ì‰¬ ì´ë™ì„ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
     public void TriggerBackdashMovementFromAnim()
     {
-        if (!isActing || isDashing || isChaseDashing) return; // Áßº¹/»óÅÂ ¿À·ù ¹æÁö
-        StartCoroutine(ExecuteDashMovement(-1)); // ¹é´ë½¬ ÀÌµ¿ ½ÃÀÛ
+        if (!isActing || isDashing || isChaseDashing) return; // ì¤‘ë³µ/ìƒíƒœ ì˜¤ë¥˜ ë°©ì§€
+        StartCoroutine(ExecuteDashMovement(-1)); // ë°±ëŒ€ì‰¬ ì´ë™ ì‹œì‘
     }
 
     /// <summary>
-    /// ½ÇÁ¦ ´ë½¬/¹é´ë½¬ ÀÌµ¿ ¹× Á¾·á Ã³¸®¸¦ ´ã´çÇÏ´Â ÄÚ·çÆ¾.
+    /// ì‹¤ì œ ëŒ€ì‰¬/ë°±ëŒ€ì‰¬ ì´ë™ ë° ì¢…ë£Œ ì²˜ë¦¬ë¥¼ ë‹´ë‹¹í•˜ëŠ” ì½”ë£¨í‹´.
     /// </summary>
-    private IEnumerator ExecuteDashMovement(int direction) // -1: ¹é´ë½¬
+    private IEnumerator ExecuteDashMovement(int direction) // -1: ë°±ëŒ€ì‰¬
     {
-        isDashing = true; // ÀÌÆåÆ® ½ÃÀÛ¿ë ÇÃ·¡±×
+        isDashing = true; // ì´í™íŠ¸ ì‹œì‘ìš© í”Œë˜ê·¸
 
         if (dashTrail != null) dashTrail.emitting = true;
         StartCoroutine(LeaveAfterImage());
 
-        // ¹æÇâ ¹× °Å¸® °è»ê
+        // ë°©í–¥ ë° ê±°ë¦¬ ê³„ì‚°
         Vector2 dashDir;
-        float distanceToMove = dashDistance; // ¹é´ë½¬´Â °íÁ¤ °Å¸®
+        float distanceToMove = dashDistance; // ë°±ëŒ€ì‰¬ëŠ” ê³ ì • ê±°ë¦¬
         if (direction == -1)
         {
             Vector2 backwardDir = facingRight ? Vector2.left : Vector2.right;
@@ -375,10 +369,10 @@ public class AngryGodAiCore : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[AI Core] ExecuteDashMovement È£ÃâµÇ¾úÀ¸³ª directionÀÌ -1ÀÌ ¾Æ´Ô: {direction}");
+            Debug.LogWarning($"[AI Core] ExecuteDashMovement í˜¸ì¶œë˜ì—ˆìœ¼ë‚˜ directionì´ -1ì´ ì•„ë‹˜: {direction}");
             isDashing = false;
             if (dashTrail != null) dashTrail.emitting = false;
-            // isActing = false; // ¿©±â¼­ isActingÀ» false·Î ÇØ¾ß ÇÒ ¼öµµ ÀÖÀ½ (PrepareBackdash¿¡¼­ true·Î Çß´Ù¸é)
+            // isActing = false; // ì—¬ê¸°ì„œ isActingì„ falseë¡œ í•´ì•¼ í•  ìˆ˜ë„ ìˆìŒ (PrepareBackdashì—ì„œ trueë¡œ í–ˆë‹¤ë©´)
             yield break;
         }
 
@@ -386,111 +380,108 @@ public class AngryGodAiCore : MonoBehaviour
         rb.velocity = dashDir * currentDashSpeed;
         yield return new WaitForSeconds(dashDuration);
         rb.velocity = Vector2.zero;
-        isDashing = false; // ÀÌÆåÆ® Á¾·á¿ë ÇÃ·¡±×
+        isDashing = false; // ì´í™íŠ¸ ì¢…ë£Œìš© í”Œë˜ê·¸
 
         if (dashTrail != null) dashTrail.emitting = false;
 
-        // --- ¹é´ë½¬ ÈÄ Çàµ¿ °áÁ¤ ---
-        // °¡Àå ¸ÕÀú °¢¼º ¿äÃ»ÀÌ ÀÖ¾ú´ÂÁö È®ÀÎÇÏ°í Ã³¸® (ÃÖ¿ì¼± ¼øÀ§)
+        // --- ë°±ëŒ€ì‰¬ í›„ í–‰ë™ ê²°ì • ---
+        // ê°€ì¥ ë¨¼ì € ê°ì„± ìš”ì²­ì´ ìˆì—ˆëŠ”ì§€ í™•ì¸í•˜ê³  ì²˜ë¦¬ (ìµœìš°ì„  ìˆœìœ„)
         if (awakeningRequested && direction == -1)
         {
             awakeningRequested = false;
             isAwakening = true;
-            // isActingÀº ÀÌ¹Ì true »óÅÂÀÏ °ÍÀÓ (PrepareBackdash µî¿¡¼­)
+            // isActingì€ ì´ë¯¸ true ìƒíƒœì¼ ê²ƒì„ (PrepareBackdash ë“±ì—ì„œ)
 
-            Debug.Log("[AI Core] ¹é´ë½¬ ÈÄ °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç Æ®¸®°Å È£Ãâ!");
-            animator.SetTrigger("Awakening"); // ¡Ú¡Ú¡Ú °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç Æ®¸®°Å È£Ãâ ¡Ú¡Ú¡Ú
-                                              // "Awakening"Àº Animator Controller¿¡ Á¤ÀÇµÈ Trigger ÀÌ¸§ÀÌ¾î¾ß ÇÕ´Ï´Ù.
+            Debug.Log("[AI Core] ë°±ëŒ€ì‰¬ í›„ ê°ì„± ì• ë‹ˆë©”ì´ì…˜ íŠ¸ë¦¬ê±° í˜¸ì¶œ!");
+            animator.SetTrigger("Awakening"); 
+                               
 
-            // BossHurtÀÇ phase2ObjectAnimeÀº ÀÌÁ¦ ´Ù¸¥ ¿ëµµ(¿¹: °¢¼º ½Ã Æ¯º° ÀÌÆåÆ®¸¸ ´ã´ç)°Å³ª
-            // »ç¿ëÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù. ¶Ç´Â °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç ÀÚÃ¼¿¡ ÀÌÆåÆ®°¡ Æ÷ÇÔµÉ ¼öµµ ÀÖ½À´Ï´Ù.
-            // ¸¸¾à phase2ObjectAnimeÀÌ ¼ø¼öÇÏ°Ô ÀÌÆåÆ®¿ëÀÌ¶ó¸é ¿©±â¼­ È°¼ºÈ­ÇÒ ¼ö ÀÖ½À´Ï´Ù.
+
             BossHurt bossHurt = GetComponent<BossHurt>();
             if (bossHurt != null && bossHurt.phase2ObjectAnime != null)
             {
-                // ¸¸¾à phase2ObjectAnimeÀÌ °¢¼º 'ÀÌÆåÆ®' Àü¿ë ¿ÀºêÁ§Æ®¶ó¸é ¿©±â¼­ È°¼ºÈ­
+                // ë§Œì•½ phase2ObjectAnimeì´ ê°ì„± 'ì´í™íŠ¸' ì „ìš© ì˜¤ë¸Œì íŠ¸ë¼ë©´ ì—¬ê¸°ì„œ í™œì„±í™”
                 // bossHurt.phase2ObjectAnime.SetActive(true);
-                // ÀÌ ºÎºĞÀº °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç°ú phase2ObjectAnimeÀÇ ¿ªÇÒ¿¡ µû¶ó °áÁ¤µË´Ï´Ù.
-                // Áö±İÀº ¾Ö´Ï¸ŞÀÌ¼Ç Æ®¸®°Å·Î °¢¼º µ¿ÀÛÀ» Á¦¾îÇÏ¹Ç·Î, ÁÖ¼® Ã³¸®ÇÏ°Å³ª ¿ªÇÒÀ» ¸íÈ®È÷ ÇÕ´Ï´Ù.
+
             }
 
-            yield return new WaitForSeconds(awakeningAnimationDuration); // °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç Áö¼Ó ½Ã°£¸¸Å­ ´ë±â
+            yield return new WaitForSeconds(awakeningAnimationDuration); // ê°ì„± ì• ë‹ˆë©”ì´ì…˜ ì§€ì† ì‹œê°„ë§Œí¼ ëŒ€ê¸°
 
-            Debug.Log("[AI Core] °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç Á¾·á.");
+            Debug.Log("[AI Core] ê°ì„± ì• ë‹ˆë©”ì´ì…˜ ì¢…ë£Œ.");
             isAwakening = false;
 
             if (bossHurt != null && bossHurt.phase2Object != null && !bossHurt.phase2Object.activeSelf)
             {
-                Debug.Log("[AI Core] °¢¼º ÈÄ Phase 2 ¿ÀºêÁ§Æ® È°¼ºÈ­.");
+                Debug.Log("[AI Core] ê°ì„± í›„ Phase 2 ì˜¤ë¸Œì íŠ¸ í™œì„±í™”.");
                 bossHurt.phase2Object.SetActive(true);
             }
         }
-        else if (direction == -1) // °¢¼º ¿äÃ»ÀÌ ¾ø¾ú°í, ¹é´ë½¬ »óÈ²ÀÏ ¶§ÀÇ ´Ù¸¥ Çàµ¿µé
+        else if (direction == -1) // ê°ì„± ìš”ì²­ì´ ì—†ì—ˆê³ , ë°±ëŒ€ì‰¬ ìƒí™©ì¼ ë•Œì˜ ë‹¤ë¥¸ í–‰ë™ë“¤
         {
-            // ¾×Æ¼ºê ½ºÅ³ 1 ½Ãµµ (°¢¼ºÇÏÁö ¾Ê¾ÒÀ» °æ¿ì¿¡¸¸)
+            // ì•¡í‹°ë¸Œ ìŠ¤í‚¬ 1 ì‹œë„ (ê°ì„±í•˜ì§€ ì•Šì•˜ì„ ê²½ìš°ì—ë§Œ)
             if (activeSkill1 != null && !activeSkill1.IsSkillActive)
             {
-                if (Time.time >= activeSkill1.GetLastSkillUseTime() + 8f) // 8fÀº ¿¹½Ã ÄğÅ¸ÀÓ
+                if (Time.time >= activeSkill1.GetLastSkillUseTime() + 8f) // 8fì€ ì˜ˆì‹œ ì¿¨íƒ€ì„
                 {
-                    Debug.Log("[AI Core] ¹é´ë½¬ ¿Ï·á ÈÄ ¾×Æ¼ºê ½ºÅ³ 1 ½Ãµµ (ÄğÅ¸ÀÓ ÃæÁ·).");
-                    yield return StartCoroutine(activeSkill1.TryStartSkillAfterBackdash()); // activeSkill1ÀÌ ³¡³¯ ¶§±îÁö ´ë±â (¼±ÅÃÀû)
+                    Debug.Log("[AI Core] ë°±ëŒ€ì‰¬ ì™„ë£Œ í›„ ì•¡í‹°ë¸Œ ìŠ¤í‚¬ 1 ì‹œë„ (ì¿¨íƒ€ì„ ì¶©ì¡±).");
+                    yield return StartCoroutine(activeSkill1.TryStartSkillAfterBackdash()); // activeSkill1ì´ ëë‚  ë•Œê¹Œì§€ ëŒ€ê¸° (ì„ íƒì )
                 }
                 else
                 {
-                    Debug.Log("[AI Core] ¾×Æ¼ºê ½ºÅ³ 1 ÄğÅ¸ÀÓ ¹ÌÃæÁ· - »ç¿ë ¾ÈÇÔ");
+                    Debug.Log("[AI Core] ì•¡í‹°ë¸Œ ìŠ¤í‚¬ 1 ì¿¨íƒ€ì„ ë¯¸ì¶©ì¡± - ì‚¬ìš© ì•ˆí•¨");
                 }
             }
 
-            // ¼ÒÈ¯ ½Ãµµ (°¢¼ºÇÏÁö ¾Ê¾Ò°í, ¾×Æ¼ºê ½ºÅ³ 1µµ »ç¿ëÇÏÁö ¾Ê¾Ò°Å³ª ³¡³µÀ» °æ¿ì - ¼ø¼­ Á¶Á¤ °¡´É)
+            // ì†Œí™˜ ì‹œë„ (ê°ì„±í•˜ì§€ ì•Šì•˜ê³ , ì•¡í‹°ë¸Œ ìŠ¤í‚¬ 1ë„ ì‚¬ìš©í•˜ì§€ ì•Šì•˜ê±°ë‚˜ ëë‚¬ì„ ê²½ìš° - ìˆœì„œ ì¡°ì • ê°€ëŠ¥)
             if (bossSummoner != null && !bossSummoner.IsSummoning)
             {
-                // bossSummoner¿¡ ÄğÅ¸ÀÓÀÌ ÀÖ´Ù¸é ¿©±â¼­ Ã¼Å©
-                Debug.Log("[AI Core] ¹é´ë½¬ ¿Ï·á ÈÄ ¼ÒÈ¯ ½Ãµµ.");
-                yield return StartCoroutine(bossSummoner.TryStartSummonAfterBackdash()); // ¼ÒÈ¯ÀÌ ³¡³¯ ¶§±îÁö ´ë±â (¼±ÅÃÀû)
+                // bossSummonerì— ì¿¨íƒ€ì„ì´ ìˆë‹¤ë©´ ì—¬ê¸°ì„œ ì²´í¬
+                Debug.Log("[AI Core] ë°±ëŒ€ì‰¬ ì™„ë£Œ í›„ ì†Œí™˜ ì‹œë„.");
+                yield return StartCoroutine(bossSummoner.TryStartSummonAfterBackdash()); // ì†Œí™˜ì´ ëë‚  ë•Œê¹Œì§€ ëŒ€ê¸°
             }
 
             if (ultimateSkill != null && !ultimateSkill.IsUltimateActive)
             {
                 if (Time.time >= ultimateSkill.GetLastUseTime() + ultimateSkill.cooldown)
                 {
-                    // Ã¼·Â Á¶°Ç Ãß°¡
+                    // ì²´ë ¥ ì¡°ê±´ ì¶”ê°€
                     if (bossHurt != null && bossHurt.currentHealth <= bossHurt.MaxHealth * 0.5f)
                     {
-                        Debug.Log("[AI Core] Ã¼·Â 50% ÀÌÇÏ Á¶°Ç ÃæÁ· ¡æ ±Ã±Ø±â ¹ßµ¿ ½Ãµµ.");
-                        yield return StartCoroutine(ultimateSkill.TryStartUltimate()); // ±Ã±Ø±â ½ÇÇà
-                        Debug.Log("[AI Core] ÀÌ¹ø ¹é´ë½¬ ÈÄ ±Ã±Ø±â¸¦ »ç¿ëÇß½À´Ï´Ù (½ÃµµÇÔ).");
+                        Debug.Log("[AI Core] ì²´ë ¥ 50% ì´í•˜ ì¡°ê±´ ì¶©ì¡± â†’ ê¶ê·¹ê¸° ë°œë™ ì‹œë„.");
+                        yield return StartCoroutine(ultimateSkill.TryStartUltimate()); // ê¶ê·¹ê¸° ì‹¤í–‰
+                        Debug.Log("[AI Core] ì´ë²ˆ ë°±ëŒ€ì‰¬ í›„ ê¶ê·¹ê¸°ë¥¼ ì‚¬ìš©í–ˆìŠµë‹ˆë‹¤ (ì‹œë„í•¨).");
                     }
                     else
                     {
-                        Debug.Log("[AI Core] Ã¼·Â 50% ÃÊ°ú ¡æ ±Ã±Ø±â ¹ßµ¿ Á¶°Ç ºÒÃæÁ·.");
+                        Debug.Log("[AI Core] ì²´ë ¥ 50% ì´ˆê³¼ â†’ ê¶ê·¹ê¸° ë°œë™ ì¡°ê±´ ë¶ˆì¶©ì¡±.");
                     }
                 }
                 else
                 {
-                    Debug.Log("[AI Core] ±Ã±Ø±â ÄğÅ¸ÀÓÀÔ´Ï´Ù (¹é´ë½¬ ÈÄ Ã¼Å©).");
-                    Debug.Log("[AI Core] ÀÌ¹ø ¹é´ë½¬ ÈÄ ±Ã±Ø±â¸¦ »ç¿ëÇÏÁö ¾Ê¾Ò½À´Ï´Ù (ÄğÅ¸ÀÓ).");
+                    Debug.Log("[AI Core] ê¶ê·¹ê¸° ì¿¨íƒ€ì„ì…ë‹ˆë‹¤ (ë°±ëŒ€ì‰¬ í›„ ì²´í¬).");
+                    Debug.Log("[AI Core] ì´ë²ˆ ë°±ëŒ€ì‰¬ í›„ ê¶ê·¹ê¸°ë¥¼ ì‚¬ìš©í•˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤ (ì¿¨íƒ€ì„).");
                 }
             }
             else if (ultimateSkill != null && ultimateSkill.IsUltimateActive)
             {
-                Debug.Log("[AI Core] ±Ã±Ø±â¸¦ ½ÃµµÇÒ ¼ö ¾øÀ½: ÀÌ¹Ì ±Ã±Ø±â°¡ È°¼º »óÅÂÀÔ´Ï´Ù.");
-                Debug.Log("[AI Core] ÀÌ¹ø ¹é´ë½¬ ÈÄ ±Ã±Ø±â¸¦ »ç¿ëÇÏÁö ¾Ê¾Ò½À´Ï´Ù (ÀÌ¹Ì È°¼º).");
+                Debug.Log("[AI Core] ê¶ê·¹ê¸°ë¥¼ ì‹œë„í•  ìˆ˜ ì—†ìŒ: ì´ë¯¸ ê¶ê·¹ê¸°ê°€ í™œì„± ìƒíƒœì…ë‹ˆë‹¤.");
+                Debug.Log("[AI Core] ì´ë²ˆ ë°±ëŒ€ì‰¬ í›„ ê¶ê·¹ê¸°ë¥¼ ì‚¬ìš©í•˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤ (ì´ë¯¸ í™œì„±).");
             }
             else if (ultimateSkill == null)
             {
-                Debug.LogWarning("[AI Core] ±Ã±Ø±â¸¦ ½ÃµµÇÒ ¼ö ¾øÀ½: ultimateSkill ÂüÁ¶°¡ nullÀÔ´Ï´Ù.");
-                Debug.Log("[AI Core] ÀÌ¹ø ¹é´ë½¬ ÈÄ ±Ã±Ø±â¸¦ »ç¿ëÇÏÁö ¾Ê¾Ò½À´Ï´Ù (ÂüÁ¶ ¾øÀ½).");
+                Debug.LogWarning("[AI Core] ê¶ê·¹ê¸°ë¥¼ ì‹œë„í•  ìˆ˜ ì—†ìŒ: ultimateSkill ì°¸ì¡°ê°€ nullì…ë‹ˆë‹¤.");
+                Debug.Log("[AI Core] ì´ë²ˆ ë°±ëŒ€ì‰¬ í›„ ê¶ê·¹ê¸°ë¥¼ ì‚¬ìš©í•˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤ (ì°¸ì¡° ì—†ìŒ).");
             }
         }
 
-        // ¸ğµç ¹é´ë½¬ ÈÄ¼Ó Çàµ¿(°¢¼º Æ÷ÇÔ)ÀÌ ¿Ï·áµÈ ÈÄ ¾à°£ÀÇ µô·¹ÀÌ
-        yield return new WaitForSeconds(0.1f); // ÀÌ µô·¹ÀÌ´Â °¢¼º ¾Ö´Ï¸ŞÀÌ¼Ç ÈÄ¿¡µµ Àû¿ëµÊ
+        // ëª¨ë“  ë°±ëŒ€ì‰¬ í›„ì† í–‰ë™(ê°ì„± í¬í•¨)ì´ ì™„ë£Œëœ í›„ ì•½ê°„ì˜ ë”œë ˆì´
+        yield return new WaitForSeconds(0.1f); // ì´ ë”œë ˆì´ëŠ” ê°ì„± ì• ë‹ˆë©”ì´ì…˜ í›„ì—ë„ ì ìš©ë¨
 
-        isActing = false; // ÀÌ ÄÚ·çÆ¾(¹é´ë½¬ ¹× ¿¬°è Çàµ¿)ÀÇ ÃÖÁ¾ Á¾·á
+        isActing = false; // ì´ ì½”ë£¨í‹´(ë°±ëŒ€ì‰¬ ë° ì—°ê³„ í–‰ë™)ì˜ ìµœì¢… ì¢…ë£Œ
         yield break;
     }
     /// <summary>
-    /// ±âº» °ø°İ ÄÚ·çÆ¾ (Ãß°İ ´ë½¬ Æ÷ÇÔ).
+    /// ê¸°ë³¸ ê³µê²© ì½”ë£¨í‹´ (ì¶”ê²© ëŒ€ì‰¬ í¬í•¨).
     /// </summary>
     IEnumerator AttackRoutine()
     {
@@ -505,7 +496,7 @@ public class AngryGodAiCore : MonoBehaviour
             if (target != null && !isChaseDashing) { float currentDistance = Vector2.Distance(transform.position, target.position); if (currentDistance > chaseDashTriggerRange) { StartCoroutine(ChaseDashDuringAttack()); } }
             yield return new WaitForSeconds(0.1f);
             timeElapsed += 0.1f;
-            if (!IsPlayerValid()) { isActing = false; if (isChaseDashing) { /* Ãß°İ Áß´Ü */ } yield break; }
+            if (!IsPlayerValid()) { isActing = false; if (isChaseDashing) { /* ì¶”ê²© ì¤‘ë‹¨ */ } yield break; }
         }
 
         float remainingTime = attackHitTiming - timeElapsed;
@@ -520,7 +511,7 @@ public class AngryGodAiCore : MonoBehaviour
     }
 
     /// <summary>
-    /// °ø°İ Áß ÂªÀº Ãß°İ ´ë½¬ ÄÚ·çÆ¾.
+    /// ê³µê²© ì¤‘ ì§§ì€ ì¶”ê²© ëŒ€ì‰¬ ì½”ë£¨í‹´.
     /// </summary>
     private IEnumerator ChaseDashDuringAttack()
     {
@@ -534,26 +525,26 @@ public class AngryGodAiCore : MonoBehaviour
         float chaseSpeed = moveSpeed * chaseDashSpeedMultiplier;
         rb.velocity = chaseDir * chaseSpeed;
         yield return new WaitForSeconds(chaseDashDuration);
-        if (isActing) rb.velocity = Vector2.zero; // °ø°İ ÁßÀÏ ¶§¸¸ ¸ØÃã
+        if (isActing) rb.velocity = Vector2.zero; // ê³µê²© ì¤‘ì¼ ë•Œë§Œ ë©ˆì¶¤
         isDashing = false;
         isChaseDashing = false;
         if (dashTrail != null) dashTrail.emitting = false;
         yield break;
     }
 
-    // ½ÇÁ¦ °ø°İ ÆÇÁ¤ ½ÇÇà ÇÔ¼ö
+    // ì‹¤ì œ ê³µê²© íŒì • ì‹¤í–‰ í•¨ìˆ˜
     void PerformAttackHit()
     {
-        Debug.Log("º¸½º °ø°İ ÆÇÁ¤!");
-        // TODO: ½ÇÁ¦ ÆÇÁ¤ ·ÎÁ÷ ±¸Çö ÇÊ¿ä.
-        // ¿¹½Ã: ¾Ö´Ï¸ŞÀÌ¼Ç ÀÌº¥Æ®·Î attackCollider.enabled = true/false Á¦¾î ÈÄ,
-        //       attackCollider¿¡ ºÙÀº ½ºÅ©¸³Æ®¿¡¼­ OnTriggerEnter2D·Î Ã³¸®
+        Debug.Log("ë³´ìŠ¤ ê³µê²© íŒì •!");
+        // TODO: ì‹¤ì œ íŒì • ë¡œì§ êµ¬í˜„ í•„ìš”.
+        // ì˜ˆì‹œ: ì• ë‹ˆë©”ì´ì…˜ ì´ë²¤íŠ¸ë¡œ attackCollider.enabled = true/false ì œì–´ í›„,
+        //       attackColliderì— ë¶™ì€ ìŠ¤í¬ë¦½íŠ¸ì—ì„œ OnTriggerEnter2Dë¡œ ì²˜ë¦¬
     }
 
     #endregion
 
-    #region ¿¹Ãø ¹× º¸Á¶ ÇÔ¼ö
-    // ÇÃ·¹ÀÌ¾î°¡ º¸½º¸¦ ÇâÇÏ°í ÀÖ´ÂÁö È®ÀÎ
+    #region ì˜ˆì¸¡ ë° ë³´ì¡° í•¨ìˆ˜
+    // í”Œë ˆì´ì–´ê°€ ë³´ìŠ¤ë¥¼ í–¥í•˜ê³  ìˆëŠ”ì§€ í™•ì¸
     bool IsPlayerFacingBoss()
     {
         if (target == null || targetSpriteRenderer == null) return false;
@@ -561,22 +552,22 @@ public class AngryGodAiCore : MonoBehaviour
         bool playerIsRightOfBoss = target.position.x > transform.position.x;
         return (!playerIsRightOfBoss && !playerIsFacingRight) || (playerIsRightOfBoss && playerIsFacingRight);
     }
-    // ÇÃ·¹ÀÌ¾î °ø°İ ¿¹Ãø (ÇöÀç´Â Ç×»ó true)
+    // í”Œë ˆì´ì–´ ê³µê²© ì˜ˆì¸¡ (í˜„ì¬ëŠ” í•­ìƒ true)
     bool CanPredictPlayerAttack() { return true; }
-    // ÇÃ·¹ÀÌ¾î ÂüÁ¶ À¯È¿¼º È®ÀÎ
+    // í”Œë ˆì´ì–´ ì°¸ì¡° ìœ íš¨ì„± í™•ì¸
    public bool IsPlayerValid() { return target != null && target.gameObject.activeInHierarchy && targetSpriteRenderer != null; }
-    // »ç¿ë ¾È ÇÔ
+    // ì‚¬ìš© ì•ˆ í•¨
     void ValidateAttackBoxes() { }
     #endregion
 
-    #region ´ë½¬ ÀÌÆåÆ® ·ÎÁ÷
-    // ´ë½¬ Áß ÀÜ»ó »ı¼º ÄÚ·çÆ¾
+    #region ëŒ€ì‰¬ ì´í™íŠ¸ ë¡œì§
+    // ëŒ€ì‰¬ ì¤‘ ì”ìƒ ìƒì„± ì½”ë£¨í‹´
     private IEnumerator LeaveAfterImage()
     {
         while (isDashing) { CreateAfterImage(); yield return new WaitForSeconds(afterImageInterval); }
         yield break;
     }
-    // ÀÜ»ó °ÔÀÓ ¿ÀºêÁ§Æ® »ı¼º ¹× ¼³Á¤
+    // ì”ìƒ ê²Œì„ ì˜¤ë¸Œì íŠ¸ ìƒì„± ë° ì„¤ì •
     void CreateAfterImage()
     {
         GameObject afterImage = new GameObject("AfterImage_Boss");
@@ -590,7 +581,7 @@ public class AngryGodAiCore : MonoBehaviour
         afterImage.transform.localScale = transform.localScale;
         StartCoroutine(FadeOutAndDestroy(sr));
     }
-    // ÀÜ»ó ÆäÀÌµå ¾Æ¿ô ¹× ÀÚµ¿ ÆÄ±« ÄÚ·çÆ¾
+    // ì”ìƒ í˜ì´ë“œ ì•„ì›ƒ ë° ìë™ íŒŒê´´ ì½”ë£¨í‹´
     private IEnumerator FadeOutAndDestroy(SpriteRenderer sr)
     {
         if (sr == null) yield break;
@@ -604,7 +595,7 @@ public class AngryGodAiCore : MonoBehaviour
 
 
     /// <summary>
-    /// °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç µµÁß ÀÌº¥Æ®·Î È£ÃâµÊ. ÂªÀº ÀüÁø ÀÌµ¿.
+    /// ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ë„ì¤‘ ì´ë²¤íŠ¸ë¡œ í˜¸ì¶œë¨. ì§§ì€ ì „ì§„ ì´ë™.
     /// </summary>
     public void TriggerAttackLunge()
     {
@@ -640,34 +631,34 @@ public class AngryGodAiCore : MonoBehaviour
     }
 
     #region Gizmos
-    // ¾À ºä¿¡¼­ AI ¹üÀ§ ¹× »óÅÂ ½Ã°¢È­
+    // ì”¬ ë·°ì—ì„œ AI ë²”ìœ„ ë° ìƒíƒœ ì‹œê°í™”
     void OnDrawGizmos()
     {
-        // ¹üÀ§ ½Ã°¢È­
+        // ë²”ìœ„ ì‹œê°í™”
         Gizmos.color = Color.red; Gizmos.DrawWireSphere(transform.position, attackRange);
         Gizmos.color = Color.yellow; Gizmos.DrawWireSphere(transform.position, backdashRange);
         Gizmos.color = Color.Lerp(Color.red, Color.yellow, 0.5f); Gizmos.DrawWireSphere(transform.position, chaseDashTriggerRange);
         Gizmos.color = Color.cyan; Gizmos.DrawWireSphere(transform.position, detectRange);
-        Gizmos.color = Color.blue; Gizmos.DrawWireSphere(transform.position, activeSkill1TriggerRange); // ¡Ú Ãß°¡: ½ºÅ³ ¹ßµ¿ ¹üÀ§
+        Gizmos.color = Color.blue; Gizmos.DrawWireSphere(transform.position, activeSkill1TriggerRange); // â˜… ì¶”ê°€: ìŠ¤í‚¬ ë°œë™ ë²”ìœ„
 
-        // °ø°İ ¹Ú½º ½Ã°¢È­
+        // ê³µê²© ë°•ìŠ¤ ì‹œê°í™”
         if (attackCollider != null) { Gizmos.color = Color.magenta; Bounds bounds = attackCollider.bounds; Gizmos.DrawWireCube(bounds.center, bounds.size); }
 
-        // »óÅÂ ½Ã°¢È­ (°ÔÀÓ ½ÇÇà Áß)
+        // ìƒíƒœ ì‹œê°í™” (ê²Œì„ ì‹¤í–‰ ì¤‘)
         if (Application.isPlaying)
         {
             if (target != null) { Gizmos.color = Color.white; Gizmos.DrawLine(transform.position, target.position); Gizmos.color = IsPlayerFacingBoss() ? Color.green : Color.gray; Gizmos.DrawCube(transform.position + Vector3.up * 1.5f, Vector3.one * 0.2f); }
 
-            bool isSkill1Active = (activeSkill1 != null && activeSkill1.IsSkillActive); // ½ºÅ³ È°¼º »óÅÂ È®ÀÎ
+            bool isSkill1Active = (activeSkill1 != null && activeSkill1.IsSkillActive); // ìŠ¤í‚¬ í™œì„± ìƒíƒœ í™•ì¸
 
-            if (isActing || isSkill1Active) // isActing ¶Ç´Â ½ºÅ³ È°¼º »óÅÂÀÏ ¶§
+            if (isActing || isSkill1Active) // isActing ë˜ëŠ” ìŠ¤í‚¬ í™œì„± ìƒíƒœì¼ ë•Œ
             {
                 if (isChaseDashing) Gizmos.color = Color.magenta;
                 else if (isDashing) Gizmos.color = Color.blue;
-                else if (isSkill1Active) Gizmos.color = Color.white; // ½ºÅ³ »ç¿ë Áß: Èò»ö (¿¹½Ã)
-                else Gizmos.color = Color.Lerp(Color.red, Color.black, 0.5f); // °ø°İ Áß
+                else if (isSkill1Active) Gizmos.color = Color.white; // ìŠ¤í‚¬ ì‚¬ìš© ì¤‘: í°ìƒ‰ (ì˜ˆì‹œ)
+                else Gizmos.color = Color.Lerp(Color.red, Color.black, 0.5f); // ê³µê²© ì¤‘
             }
-            else { Gizmos.color = Color.green; } // ´ë±â Áß
+            else { Gizmos.color = Color.green; } // ëŒ€ê¸° ì¤‘
             Gizmos.DrawSphere(transform.position + Vector3.down * 0.5f, 0.15f);
         }
     }
@@ -678,61 +669,58 @@ public class AngryGodAiCore : MonoBehaviour
                (activeSkill1 != null && activeSkill1.IsSkillActive) ||
                (ultimateSkill != null && ultimateSkill.IsUltimateActive) ||
                (bossSummoner != null && bossSummoner.IsSummoning) ||
-               (flameSkill != null && flameSkill.IsFlaming) || // IsFlamingÀº flameSkill¿¡ ÀÖ¾î¾ß ÇÔ
+               (flameSkill != null && flameSkill.IsFlaming) || // IsFlamingì€ flameSkillì— ìˆì–´ì•¼ í•¨
                isAwakening;
     }
-    #region ¿ÜºÎ »óÈ£ÀÛ¿ë ÇÔ¼ö (ActiveSkill1 ¹× ÇÊ¿ä½Ã ´Ù¸¥ ½ºÅ©¸³Æ®¿ë)
+    #region ì™¸ë¶€ ìƒí˜¸ì‘ìš© í•¨ìˆ˜ (ActiveSkill1 ë° í•„ìš”ì‹œ ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ìš©)
 
-    /// <summary> ¿ÜºÎ ½ºÅ©¸³Æ®°¡ AIÀÇ Çàµ¿ ½ÃÀÛÀ» ¾Ë¸± ¶§ È£Ãâ. isActing = true ¼³Á¤. </summary>
+    /// <summary> ì™¸ë¶€ ìŠ¤í¬ë¦½íŠ¸ê°€ AIì˜ í–‰ë™ ì‹œì‘ì„ ì•Œë¦´ ë•Œ í˜¸ì¶œ. isActing = true ì„¤ì •. </summary>
     public void NotifyActionStart() { this.isActing = true; }
-    /// <summary> ¿ÜºÎ ½ºÅ©¸³Æ®°¡ AIÀÇ Çàµ¿ Á¾·á¸¦ ¾Ë¸± ¶§ È£Ãâ. isActing = false ¼³Á¤. </summary>
+    /// <summary> ì™¸ë¶€ ìŠ¤í¬ë¦½íŠ¸ê°€ AIì˜ í–‰ë™ ì¢…ë£Œë¥¼ ì•Œë¦´ ë•Œ í˜¸ì¶œ. isActing = false ì„¤ì •. </summary>
     public void NotifyActionEnd() { this.isActing = false; }
-    /// <summary> ¿ÜºÎ ½ºÅ©¸³Æ®°¡ AIÀÇ ÀÌµ¿À» ¸ØÃßµµ·Ï ¿äÃ». </summary>
+    /// <summary> ì™¸ë¶€ ìŠ¤í¬ë¦½íŠ¸ê°€ AIì˜ ì´ë™ì„ ë©ˆì¶”ë„ë¡ ìš”ì²­. </summary>
     public void StopMovement() { if (rb != null) rb.velocity = Vector2.zero; }
-    /// <summary> ¿ÜºÎ ½ºÅ©¸³Æ®°¡ AIÀÇ ¹æÇâ ÀüÈ¯À» °­Á¦. </summary>
+    /// <summary> ì™¸ë¶€ ìŠ¤í¬ë¦½íŠ¸ê°€ AIì˜ ë°©í–¥ ì „í™˜ì„ ê°•ì œ. </summary>
     public void ForceFlipTowardsTarget() { FlipTowardsTarget(true); }
-    /// <summary> ÇöÀç AI°¡ 'ÁÖ Çàµ¿'(°ø°İ, ÀÏ¹İ/¹é ´ë½¬, ½ºÅ³) ¶Ç´Â 'Ãß°İ ´ë½¬' ÁßÀÎÁö È®ÀÎ. </summary>
+    /// <summary> í˜„ì¬ AIê°€ 'ì£¼ í–‰ë™'(ê³µê²©, ì¼ë°˜/ë°± ëŒ€ì‰¬, ìŠ¤í‚¬) ë˜ëŠ” 'ì¶”ê²© ëŒ€ì‰¬' ì¤‘ì¸ì§€ í™•ì¸. </summary>
     public bool IsCurrentlyActing() { return isActing || isChaseDashing; }
-    /// <summary> ¿ÜºÎ ½ºÅ©¸³Æ®(¿¹: ActiveSkill1)°¡ ¹é´ë½¬ ½ÃÀÛÀ» ¿äÃ»ÇÒ ¶§ È£ÃâÇÕ´Ï´Ù. </summary>
+    /// <summary> ì™¸ë¶€ ìŠ¤í¬ë¦½íŠ¸(ì˜ˆ: ActiveSkill1)ê°€ ë°±ëŒ€ì‰¬ ì‹œì‘ì„ ìš”ì²­í•  ë•Œ í˜¸ì¶œí•©ë‹ˆë‹¤. </summary>
     public void InitiateBackdash()
     {
-        // ÀÌ¹Ì Çàµ¿ ÁßÀÌ ¾Æ´Ï¾î¾ß ÇÔ
+        // ì´ë¯¸ í–‰ë™ ì¤‘ì´ ì•„ë‹ˆì–´ì•¼ í•¨
         if (!isActing && !isChaseDashing) { PrepareBackdash(); }
-        else { Debug.LogWarning("´Ù¸¥ Çàµ¿ ÁßÀÌ¶ó ¹é´ë½¬ ½ÃÀÛ ºÒ°¡."); }
+        else { Debug.LogWarning("ë‹¤ë¥¸ í–‰ë™ ì¤‘ì´ë¼ ë°±ëŒ€ì‰¬ ì‹œì‘ ë¶ˆê°€."); }
     }
     /// </summary>
     public void RequestAwakeningSequence()
     {
-        if (!isAwakening && !awakeningRequested) // Áßº¹ ¿äÃ» ¹æÁö
+        if (!isAwakening && !awakeningRequested) // ì¤‘ë³µ ìš”ì²­ ë°©ì§€
         {
-            Debug.Log("[AI Core] °¢¼º ½ÃÄö½º ¿äÃ» ¹ŞÀ½.");
+            Debug.Log("[AI Core] ê°ì„± ì‹œí€€ìŠ¤ ìš”ì²­ ë°›ìŒ.");
             awakeningRequested = true;
-            // ÇöÀç Çàµ¿À» Áï½Ã Áß´ÜÇÏ°í ¹é´ë½¬¸¦ ½ÃµµÇÒ ¼öµµ ÀÖ°í,
-            // ¶Ç´Â ´ÙÀ½ Çàµ¿ °áÁ¤ ½Ã ¿ì¼±ÀûÀ¸·Î ¹é´ë½¬¸¦ ÇÏµµ·Ï ÇÒ ¼öµµ ÀÖ½À´Ï´Ù.
-            // ¿©±â¼­´Â Áï½Ã ¹é´ë½¬¸¦ ÁØºñÇÏµµ·Ï ÇÕ´Ï´Ù.
-            if (!IsCurrentlyActingOrSkillActive()) // ´Ù¸¥ Áß¿äÇÑ Çàµ¿ ÁßÀÌ ¾Æ´Ò ¶§¸¸ Áï½Ã ½ÇÇà
+
+            if (!IsCurrentlyActingOrSkillActive()) // ë‹¤ë¥¸ ì¤‘ìš”í•œ í–‰ë™ ì¤‘ì´ ì•„ë‹ ë•Œë§Œ ì¦‰ì‹œ ì‹¤í–‰
             {
                 PrepareAndExecuteAwakeningBackdash();
             }
-            // ¸¸¾à IsCurrentlyActingOrSkillActive()°¡ true¶ó¸é, Update()¿¡¼­ awakeningRequested¸¦ Ã¼Å©ÇÏ¿©
-            // ÇöÀç Çàµ¿ÀÌ ³¡³­ ÈÄ ¹é´ë½¬¸¦ ÇÏµµ·Ï À¯µµÇÒ ¼ö ÀÖ½À´Ï´Ù. (´õ º¹ÀâÇÑ ·ÎÁ÷ ÇÊ¿ä)
-            // ÇöÀç´Â Áï½Ã ½ÃµµÇÏ´Â °ÍÀ¸·Î ´Ü¼øÈ­ÇÕ´Ï´Ù.
+            // ë§Œì•½ IsCurrentlyActingOrSkillActive()ê°€ trueë¼ë©´, Update()ì—ì„œ awakeningRequestedë¥¼ ì²´í¬í•˜ì—¬
+
         }
     }
 
     /// <summary>
-    /// °¢¼ºÀ» À§ÇÑ ¹é´ë½¬¸¦ ÁØºñÇÏ°í ½ÇÇàÇÕ´Ï´Ù.
+    /// ê°ì„±ì„ ìœ„í•œ ë°±ëŒ€ì‰¬ë¥¼ ì¤€ë¹„í•˜ê³  ì‹¤í–‰í•©ë‹ˆë‹¤.
     /// </summary>
     private void PrepareAndExecuteAwakeningBackdash()
     {
-        if (isActing || isChaseDashing || isAwakening) return; // ÀÌ¹Ì ´Ù¸¥ Çàµ¿ ÁßÀÌ°Å³ª °¢¼º ÁßÀÌ¸é Áßº¹ ¹æÁö
+        if (isActing || isChaseDashing || isAwakening) return; // ì´ë¯¸ ë‹¤ë¥¸ í–‰ë™ ì¤‘ì´ê±°ë‚˜ ê°ì„± ì¤‘ì´ë©´ ì¤‘ë³µ ë°©ì§€
 
-        Debug.Log("[AI Core] °¢¼º ¹é´ë½¬ ÁØºñ.");
-        isActing = true; // ¹é´ë½¬µµ ÇÏ³ªÀÇ Çàµ¿
+        Debug.Log("[AI Core] ê°ì„± ë°±ëŒ€ì‰¬ ì¤€ë¹„.");
+        isActing = true; // ë°±ëŒ€ì‰¬ë„ í•˜ë‚˜ì˜ í–‰ë™
         rb.velocity = Vector2.zero;
-        FlipTowardsTarget(true); // ÇÃ·¹ÀÌ¾î°¡ ¾î´À ÂÊ¿¡ ÀÖµç ¹İ´ë ¹æÇâÀ¸·Î ¹é´ë½¬ÇÏ±â À§ÇÔ
-        animator.SetTrigger("Backdash"); // ¹é´ë½¬ ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ (ÀÌÈÄ AnimEvent·Î ExecuteDashMovement È£Ãâ)
-                                         // ExecuteDashMovement¿¡¼­´Â awakeningRequested¸¦ È®ÀÎÇÏ¿© °¢¼º ¾Ö´Ï¸ŞÀÌ¼ÇÀ¸·Î ¿¬°á
+        FlipTowardsTarget(true); // í”Œë ˆì´ì–´ê°€ ì–´ëŠ ìª½ì— ìˆë“  ë°˜ëŒ€ ë°©í–¥ìœ¼ë¡œ ë°±ëŒ€ì‰¬í•˜ê¸° ìœ„í•¨
+        animator.SetTrigger("Backdash"); // ë°±ëŒ€ì‰¬ ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘ (ì´í›„ AnimEventë¡œ ExecuteDashMovement í˜¸ì¶œ)
+                                         // ExecuteDashMovementì—ì„œëŠ” awakeningRequestedë¥¼ í™•ì¸í•˜ì—¬ ê°ì„± ì• ë‹ˆë©”ì´ì…˜ìœ¼ë¡œ ì—°ê²°
     }
 
     public float GetGlobalCooldownTime() => globalActionCooldownTime;
