@@ -112,7 +112,7 @@ public class AngryGodAiCore : MonoBehaviour
         ultimateSkill = GetComponent<AngryGodUltimateSkill>();
         bossHurt = GetComponent<BossHurt>();
         // 필수 컴포넌트 확인
-        if (animator == null || rb == null || spriteRenderer == null || activeSkill1 == null) // ★ 수정: activeSkill1 추가
+        if (animator == null || rb == null || spriteRenderer == null || activeSkill1 == null) // activeSkill1 추가
         {
          
             this.enabled = false; return;
