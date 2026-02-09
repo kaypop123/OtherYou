@@ -49,3 +49,5 @@
 ![240192_280486_5623](https://github.com/user-attachments/assets/d7b43009-4167-4fdb-9d15-47324591bd25)
 
 
+OtherYou 영상
+https://drive.google.com/file/d/1Un-N45bDUc6DDo8PEFB9ufL-ptPPMmy7/view?usp=sharing
