@@ -46,8 +46,8 @@
 ## 📸 전시 사진 / 영상
 <table>
   <tr>
-    <td align="center"><b>PlayX4 현장 사진</b></td>
-    <td align="center"><b>보도 자료 이미지</b></td>
+<td align="center" width="50%"><b>PlayX4 현장 사진</b></td>
+    <td align="center" width="50%"><b>보도 자료 이미지</b></td>
   </tr>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/4da24aec-666e-42c1-b66d-294707129304" width="100%"></td>
