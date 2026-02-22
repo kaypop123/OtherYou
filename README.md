@@ -80,7 +80,6 @@ https://drive.google.com/file/d/1Un-N45bDUc6DDo8PEFB9ufL-ptPPMmy7/view?usp=shari
   </tr>
   <tr>
     <td><img src="https://github.com/user-attachments/assets/033d7b31-571e-4061-b82d-adeb0a3bbc7e" width="100%"></td>
-    <td align="center">보스전 하이라이트</td>
   </tr>
 </table>
 
