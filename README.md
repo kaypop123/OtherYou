@@ -44,7 +44,16 @@
 ---
 
 ## 📸 전시 사진 / 영상
-![KakaoTalk_20251023_112225068](https://github.com/user-attachments/assets/4da24aec-666e-42c1-b66d-294707129304) ![240192_280486_5623](https://github.com/user-attachments/assets/d7b43009-4167-4fdb-9d15-47324591bd25)
+<table>
+  <tr>
+    <td align="center"><b>PlayX4 현장 사진</b></td>
+    <td align="center"><b>보도 자료 이미지</b></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/4da24aec-666e-42c1-b66d-294707129304" width="100%"></td>
+    <td><img src="https://github.com/user-attachments/assets/d7b43009-4167-4fdb-9d15-47324591bd25" width="100%"></td>
+  </tr>
+</table>
 
 OtherYou 영상
 https://drive.google.com/file/d/1Un-N45bDUc6DDo8PEFB9ufL-ptPPMmy7/view?usp=sharing
