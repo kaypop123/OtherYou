@@ -45,13 +45,14 @@
 
 ## 📸 전시 사진 / 영상
 ![KakaoTalk_20251023_112225068](https://github.com/user-attachments/assets/4da24aec-666e-42c1-b66d-294707129304)
+![240192_280486_5623](https://github.com/user-attachments/assets/d7b43009-4167-4fdb-9d15-47324591bd25)
+OtherYou 영상
+https://drive.google.com/file/d/1Un-N45bDUc6DDo8PEFB9ufL-ptPPMmy7/view?usp=sharing
 
 ---
-
 ## 게임장면
 
 <img width="1956" height="1104" alt="image" src="https://github.com/user-attachments/assets/eb2f4657-b8f2-4190-a6ba-60ef10fc57c0" />
-![240192_280486_5623](https://github.com/user-attachments/assets/d7b43009-4167-4fdb-9d15-47324591bd25)
 <img width="1950" height="1098" alt="image" src="https://github.com/user-attachments/assets/4d25ac86-0718-41f5-9890-93fee3da72f9" />
 <img width="1960" height="1090" alt="image" src="https://github.com/user-attachments/assets/08c71a24-46f6-4956-aa8a-2e089859bee2" />
 <img width="1964" height="1092" alt="image" src="https://github.com/user-attachments/assets/19c7f4ba-1db9-41ba-a950-17ef1039bc9f" />
@@ -63,5 +64,3 @@
 
 
 
-OtherYou 영상
-https://drive.google.com/file/d/1Un-N45bDUc6DDo8PEFB9ufL-ptPPMmy7/view?usp=sharing
