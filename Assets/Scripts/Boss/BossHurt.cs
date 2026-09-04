@@ -1,6 +1,6 @@
-using UnityEngine;
+Ôªøusing UnityEngine;
 using System.Collections;
-using UnityEngine.SceneManagement; // ∏« ¿ßø° √ﬂ∞° « ø‰
+using UnityEngine.SceneManagement; // Îß® ÏúÑÏóê Ï∂îÍ∞Ä ÌïÑÏöî
 public class BossHurt : MonoBehaviour
 {
     [Header("Phase Object")]
@@ -17,7 +17,7 @@ public class BossHurt : MonoBehaviour
 
     private CameraShakeSystem cameraShake;
 
-    [Header("æ÷¥œ∏ﬁ¿Ã≈Õ")]
+    [Header("Ïï†ÎãàÎ©îÏù¥ÌÑ∞")]
     public Animator bossAnimator;
 
     [Header("Stats")]
@@ -31,7 +31,7 @@ public class BossHurt : MonoBehaviour
     [Header("Hit Effect Position")]
     public Transform pos;
 
-    private AngryGodAiCore aiCore;
+    private AngryGodAiCoreRE aiCore;
 
     public GameObject adamCharacter;
     public GameObject devaCharacter;
@@ -42,9 +42,8 @@ public class BossHurt : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         cameraShake = Camera.main != null ? Camera.main.GetComponent<CameraShakeSystem>() : null;
-        aiCore = GetComponent<AngryGodAiCore>();
+        aiCore = GetComponent<AngryGodAiCoreRE>();
 
-        if (aiCore == null) Debug.LogError("AngryGodAiCore component missing on " + gameObject.name);
 
         currentHealth = MaxHealth;
     }
@@ -124,18 +123,15 @@ public class BossHurt : MonoBehaviour
 
     public void TakeDamage(int damage, bool fromAdam, bool fromDeba)
     {
-        if (isDying || (aiCore != null && aiCore.IsCurrentlyActingOrSkillActive()))
-        {
-        }
-        if (isDying) return;
+        if (isDying)
+            return;
 
         currentHealth -= damage;
         currentHealth = Mathf.Clamp(currentHealth, 0, MaxHealth);
-
         if (!phase2Triggered && currentHealth <= MaxHealth / 2)
         {
             phase2Triggered = true;
-            Debug.Log("¢∫ HP 50% ¿Ã«œ! ∞¢º∫ Ω√ƒˆΩ∫ ø‰√ª ¡ÿ∫Ò.");
+            Debug.Log("‚ñ∂ HP 50% Ïù¥Ìïò! Í∞ÅÏÑ± ÏãúÌÄÄÏä§ ÏöîÏ≤≠ Ï§ÄÎπÑ.");
 
             if (aiCore != null)
             {
@@ -143,9 +139,13 @@ public class BossHurt : MonoBehaviour
             }
             else
             {
-                Debug.LogWarning("AI Core ¬¸¡∂∞° æ¯æÓ ∞¢º∫ Ω√ƒˆΩ∫∏¶ ø‰√ª«“ ºˆ æ¯Ω¿¥œ¥Ÿ!");
-                if (phase2Object != null) phase2Object.SetActive(true);
-                if (phase2ObjectAnime != null) phase2ObjectAnime.SetActive(true);
+                Debug.LogWarning("AI Core Ï∞∏Ï°∞Í∞Ä ÏóÜÏñ¥ Í∞ÅÏÑ± ÏãúÌÄÄÏä§Î•º ÏöîÏ≤≠Ìï† Ïàò ÏóÜÏäµÎãàÎã§!");
+
+                if (phase2Object != null)
+                    phase2Object.SetActive(true);
+
+                if (phase2ObjectAnime != null)
+                    phase2ObjectAnime.SetActive(true);
             }
         }
 
@@ -169,21 +169,21 @@ public class BossHurt : MonoBehaviour
         Time.timeScale = 0.2f;
         Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-        Debug.Log("¢∫ ΩΩ∑ŒøÏ ∏º« Ω√¿€");
+        Debug.Log("‚ñ∂ Ïä¨Î°úÏö∞ Î™®ÏÖò ÏãúÏûë");
 
         yield return new WaitForSecondsRealtime(1.5f);
 
         Time.timeScale = 1f;
         Time.fixedDeltaTime = 0.02f;
 
-        Debug.Log("¢∫ ΩΩ∑ŒøÏ ∏º« ∫π±∏");
+        Debug.Log("‚ñ∂ Ïä¨Î°úÏö∞ Î™®ÏÖò Î≥µÍµ¨");
 
 
 
  
 
         yield return new WaitForSeconds(1f);
-        Debug.Log("¢∫ æ¿ ¿Ãµø ¡ﬂ...");
-        SceneManager.LoadScene("end"); // ø©±‚ø° ¿¸»Ø«“ æ¿ ¿Ã∏ß¿ª ≥÷¿∏ººø‰
+        Debug.Log("‚ñ∂ Ïî¨ Ïù¥Îèô Ï§ë...");
+        SceneManager.LoadScene("end"); // Ïó¨Í∏∞Ïóê Ï†ÑÌôòÌï† Ïî¨ Ïù¥Î¶ÑÏùÑ ÎÑ£ÏúºÏÑ∏Ïöî
     }
 }

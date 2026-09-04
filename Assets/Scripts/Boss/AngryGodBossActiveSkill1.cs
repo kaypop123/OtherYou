@@ -1,11 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 
 /// <summary>
-/// º¸½ºÀÇ Æ¯Á¤ ¾×Æ¼ºê ½ºÅ³ (»ó½Â ÈÄ °ø°İ) + MeteorSpawner ÅëÇÕ ¹öÀü.
-/// º¸½º°¡ ¹Ù¶óº¸´Â ¹æÇâÀ¸·Î ¼øÂ÷ÀûÀ¸·Î ¸ŞÅ×¿À 7°³¸¦ ³«ÇÏ½ÃÅ´.
+/// ë³´ìŠ¤ì˜ íŠ¹ì • ì•¡í‹°ë¸Œ ìŠ¤í‚¬ (ìƒìŠ¹ í›„ ê³µê²©) + MeteorSpawner í†µí•© ë²„ì „.
+/// ë³´ìŠ¤ê°€ ë°”ë¼ë³´ëŠ” ë°©í–¥ìœ¼ë¡œ ìˆœì°¨ì ìœ¼ë¡œ ë©”í…Œì˜¤ 7ê°œë¥¼ ë‚™í•˜ì‹œí‚´.
 /// </summary>
-[RequireComponent(typeof(AngryGodAiCore))]
+[RequireComponent(typeof(AngryGodAiCoreRE))]
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Rigidbody2D))]
 public class AngryGodActiveSkill1 : MonoBehaviour
@@ -29,7 +29,7 @@ public class AngryGodActiveSkill1 : MonoBehaviour
     [SerializeField] private int meteorCount = 7;
     [SerializeField] private float meteorSpacing = 1.5f;
 
-    private AngryGodAiCore aiCore;
+    private AngryGodAiCoreRE aiCore;
     private Animator animator;
     private Rigidbody2D rb;
 
@@ -43,7 +43,7 @@ public class AngryGodActiveSkill1 : MonoBehaviour
 
     private void Awake()
     {
-        aiCore = GetComponent<AngryGodAiCore>();
+        aiCore = GetComponent<AngryGodAiCoreRE>();
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
     }
@@ -54,38 +54,27 @@ public class AngryGodActiveSkill1 : MonoBehaviour
         originalGravityScale = rb.gravityScale;
     }
 
-    public bool TryStartSkill(float distanceToTarget)
-    {
-        if (Time.time >= lastSkillUseTime + skillCooldown && !isSkillActive && !aiCore.IsCurrentlyActing())
-        {
-            aiCore.InitiateBackdash();
-            return true;
-        }
-        return false;
-    }
 
-    public IEnumerator TryStartSkillAfterBackdash()
+
+
+    public IEnumerator StartSkill()
     {
-        //  Àü¿ª ÄğÅ¸ÀÓÀÌ ³²¾ÆÀÖÀ¸¸é ½ÇÇàÇÏÁö ¾ÊÀ½
-        if (Time.time < aiCore.GetGlobalCooldownTime())
+        if (isSkillActive)
             yield break;
 
-        //  Àü¿ª ÄğÅ¸ÀÓ °»½Å (¿¹: 6ÃÊ)
-        aiCore.SetGlobalCooldownTime(Time.time + 6f);
-
-        yield return new WaitForSeconds(0.1f);
-        StartCoroutine(SkillRoutine());
+        yield return SkillRoutine();
     }
 
     private IEnumerator SkillRoutine()
     {
         isSkillActive = true;
-        aiCore.NotifyActionStart();
 
         aiCore.StopMovement();
-        aiCore.ForceFlipTowardsTarget();
+        aiCore.FaceTarget();
+
         rb.velocity = Vector2.zero;
         rb.gravityScale = 0;
+
         groundPosition = transform.position;
 
         if (startSkillVFX != null)
@@ -95,11 +84,12 @@ public class AngryGodActiveSkill1 : MonoBehaviour
 
         while (isSkillActive)
         {
-            if (!aiCore.IsPlayerValid())
+            if (!aiCore.HasTarget)
             {
                 yield return AbortSkill();
                 yield break;
             }
+
             yield return null;
         }
     }
@@ -123,40 +113,50 @@ public class AngryGodActiveSkill1 : MonoBehaviour
         StartCoroutine(AirActionRoutine());
     }
 
-    private IEnumerator AirActionRoutine()
-    {
-        Transform player = aiCore.GetPlayer(); // ¹İµå½Ã AngryGodAiCore¿¡ GetPlayer()°¡ ÀÖ¾î¾ß ÇÔ
-        Vector2 playerDir = ((Vector2)player.position - (Vector2)transform.position).normalized;
-        Vector2 basePos = (Vector2)transform.position + playerDir * 2f + Vector2.down;
 
-        Vector2[] meteorTargets = new Vector2[meteorCount];
+private IEnumerator AirActionRoutine()
+    {
+        Transform player = aiCore.GetTarget();
+
+        if (player == null)
+            yield break;
+
+        Vector2 playerDir =
+            ((Vector2)player.position - (Vector2)transform.position).normalized;
+
+        Vector2 basePos =
+            (Vector2)transform.position + playerDir * 2f + Vector2.down;
+
+
+    
+    Vector2[] meteorTargets = new Vector2[meteorCount];
         for (int i = 0; i < meteorCount; i++)
         {
-            float offset = i * meteorSpacing * 2.5f;               //  ´õ ³Ğ°Ô ÆÛÁü
-            float randomY = Random.Range(-1f, 1f);                  //  Yµµ ´õ Èçµé¸®°Ô
+            float offset = i * meteorSpacing * 2.5f;               //  ë” ë„“ê²Œ í¼ì§
+            float randomY = Random.Range(-1f, 1f);                  //  Yë„ ë” í”ë“¤ë¦¬ê²Œ
             Vector2 offsetDir = (playerDir + new Vector2(Random.Range(-0.3f, 0.3f), Random.Range(-0.2f, 0.2f))).normalized;
             meteorTargets[i] = basePos + offsetDir * (offset * 0.7f) + Vector2.up * randomY;
 
         }
 
-        // ·£´ı ¼¯±â
+        // ëœë¤ ì„ê¸°
         for (int i = 0; i < meteorTargets.Length; i++)
         {
             int rand = Random.Range(i, meteorTargets.Length);
             (meteorTargets[i], meteorTargets[rand]) = (meteorTargets[rand], meteorTargets[i]);
         }
 
-        // ¸ŞÅ×¿À »ı¼º
+        // ë©”í…Œì˜¤ ìƒì„±
         for (int i = 0; i < meteorTargets.Length; i++)
         {
             Vector2 targetPos = meteorTargets[i];
-            // ´õ »ç¼±À¸·Î ¶³¾îÁö°Ô: ´õ ¸Ö¸®¼­, ´ú À§¿¡¼­
+            // ë” ì‚¬ì„ ìœ¼ë¡œ ë–¨ì–´ì§€ê²Œ: ë” ë©€ë¦¬ì„œ, ëœ ìœ„ì—ì„œ
             Vector2 horizontalDir = playerDir.x >= 0 ? Vector2.right : Vector2.left;
             Vector2 spawnOffset = horizontalDir * 14f + Vector2.up * 10f;
 
             Vector2 spawnPos = targetPos + spawnOffset;
 
-            // ¶¥º¸´Ù ¾Æ·¡·Î ½ºÆùµÇÁö ¾Êµµ·Ï º¸Á¤
+            // ë•…ë³´ë‹¤ ì•„ë˜ë¡œ ìŠ¤í°ë˜ì§€ ì•Šë„ë¡ ë³´ì •
             spawnPos.y = Mathf.Max(spawnPos.y, groundPosition.y + 1f);
             StartCoroutine(SpawnMeteorWithWarning(spawnPos, targetPos));
             yield return new WaitForSeconds(Random.Range(0.05f, 0.15f));
@@ -200,7 +200,6 @@ public class AngryGodActiveSkill1 : MonoBehaviour
         rb.gravityScale = originalGravityScale;
 
         isSkillActive = false;
-        aiCore.NotifyActionEnd();
         lastSkillUseTime = Time.time;
     }
 
@@ -259,7 +258,7 @@ public class AngryGodActiveSkill1 : MonoBehaviour
     {
         GameObject warning = Instantiate(telegraphPrefab, targetPos, Quaternion.identity);
 
-        // È¸Àü °¢µµ ¼³Á¤
+        // íšŒì „ ê°ë„ ì„¤ì •
         float angle = Mathf.Atan2((targetPos - spawnPos).y, (targetPos - spawnPos).x) * Mathf.Rad2Deg;
         warning.transform.rotation = Quaternion.Euler(0, 0, angle);
 
@@ -270,15 +269,16 @@ public class AngryGodActiveSkill1 : MonoBehaviour
         Rigidbody2D rbMeteor = meteor.GetComponent<Rigidbody2D>();
         rbMeteor.velocity = (targetPos - spawnPos).normalized * meteorFallSpeed;
 
-        // ?? ¹æÇâ ±âÁØÀ¸·Î flipX ¼³Á¤
+        // ?? ë°©í–¥ ê¸°ì¤€ìœ¼ë¡œ flipX ì„¤ì •
         SpriteRenderer sr = meteor.GetComponent<SpriteRenderer>();
         if (sr != null)
         {
-            sr.flipX = (targetPos.x > spawnPos.x);  // ¿À¸¥ÂÊÀÌ¸é flipX = true
+            sr.flipX = (targetPos.x > spawnPos.x);  // ì˜¤ë¥¸ìª½ì´ë©´ flipX = true
         }
     }
 
 
     public float GetLastSkillUseTime() => lastSkillUseTime;
     public bool IsSkillActive => isSkillActive;
+    public bool CanUseSkill => !isSkillActive && Time.time >= lastSkillUseTime + skillCooldown;
 }

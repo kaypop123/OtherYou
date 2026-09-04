@@ -1,9 +1,9 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 [RequireComponent(typeof(Animator))]
 [RequireComponent(typeof(Rigidbody2D))]
-[RequireComponent(typeof(AngryGodAiCore))]
+[RequireComponent(typeof(AngryGodAiCoreRE))]
 public class AngryGodUltimateSkill : MonoBehaviour
 {
     public bool IsUltimateActive { get; private set; }
@@ -18,14 +18,14 @@ public class AngryGodUltimateSkill : MonoBehaviour
     // 컴포넌트 참조
     private Animator animator;
     private Rigidbody2D rb;
-    private AngryGodAiCore aiCore;
+    private AngryGodAiCoreRE aiCore;
     private float originalGravityScale; // 원래 중력값 저장용
 
     void Awake()
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        aiCore = GetComponent<AngryGodAiCore>();
+        aiCore = GetComponent<AngryGodAiCoreRE>();
 
         if (animator == null) Debug.LogError("Animator component missing on " + gameObject.name);
         if (rb == null) Debug.LogError("Rigidbody2D component missing on " + gameObject.name);
@@ -54,10 +54,9 @@ public class AngryGodUltimateSkill : MonoBehaviour
             yield break;
         }
 
-        Debug.Log("[UltimateSkill] TryStartUltimate 조건 통과, 시퀀스 시작 준비.");
+
         IsUltimateActive = true;
-        aiCore.NotifyActionStart(); // AI Core에게 행동 시작 알림
-        Debug.Log("[UltimateSkill] IsUltimateActive=true, NotifyActionStart() 호출됨.");
+
 
         // 2. 즉시 이동 정지 및 방향 고정
         if (rb != null)
@@ -66,12 +65,10 @@ public class AngryGodUltimateSkill : MonoBehaviour
             rb.gravityScale = 0f; // 궁극기 중 중력 영향 제거
             Debug.Log("[UltimateSkill] Rigidbody 속도/중력 조절됨.");
         }
-        if (aiCore.GetPlayer() != null) // aiCore에 GetPlayer()가 있어야 함
+        if (aiCore.GetTarget() != null)
         {
-            aiCore.ForceFlipTowardsTarget(); // 플레이어 방향으로 즉시 전환
-            Debug.Log("[UltimateSkill] 플레이어 방향으로 전환됨.");
+            aiCore.FaceTarget();
         }
-
         // 3. "Ultimate" Trigger 하나로 전체 궁극기 애니메이션 시작
         animator.SetTrigger("Ultimate"); 
         Debug.Log($"[UltimateSkill] 'Ultimate' 트리거 발동. 총 애니메이션 시간 ({totalAnimationTime}초) 시작.");
@@ -90,7 +87,6 @@ public class AngryGodUltimateSkill : MonoBehaviour
             Debug.Log("[UltimateSkill] Ultimate 중 취소됨 (IsUltimateActive가 false). 추가 종료 처리 불필요 (이미 AbortUltimate에서 처리됨).");
 
             if (rb != null && rb.gravityScale == 0f) rb.gravityScale = originalGravityScale; // 중력 복구 확인
-            if (aiCore != null && !IsUltimateActive) aiCore.NotifyActionEnd(); // 만약을 위해 한번 더
             yield break;
         }
 
@@ -117,8 +113,7 @@ public class AngryGodUltimateSkill : MonoBehaviour
             rb.gravityScale = originalGravityScale; // 원래 중력으로 복원
         }
         IsUltimateActive = false;
-        lastUsedTime = Time.time; // 성공적으로 끝났으므로 쿨타임 시작
-        aiCore.NotifyActionEnd(); // AI Core에게 행동 끝났음을 알림
+        lastUsedTime = Time.time;
         yield break;
     }
 
@@ -144,9 +139,13 @@ public class AngryGodUltimateSkill : MonoBehaviour
         // lastUsedTime은 업데이트하지 않음 (성공적으로 끝난 것이 아니므로 쿨타임 적용 안 함 또는 다른 정책)
         // 또는, 중단되어도 쿨타임을 적용하고 싶다면 lastUsedTime = Time.time; 추가
 
-        aiCore.NotifyActionEnd(); // AI Core에게 행동 끝났음을 알림
         yield break;
     }
 
     public float GetLastUseTime() => lastUsedTime;
+
+
+    public bool CanUseUltimate =>
+    !IsUltimateActive &&
+    Time.time >= lastUsedTime + cooldown;
 }

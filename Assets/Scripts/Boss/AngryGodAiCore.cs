@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic; // Gizmos 디버깅용
 
@@ -97,6 +97,13 @@ public class AngryGodAiCore : MonoBehaviour
     [SerializeField] private float backdashProbability = 0.6f; // 예: 60% 확률로 백대쉬
     private AngryGodFlameSkill flameSkill;
     private AngryGodUltimateSkill ultimateSkill;
+
+
+
+    private BossStateMachine stateMachine;
+
+    public BossIdleState IdleState { get; private set; }
+
     #endregion
 
     #region 유니티 생명주기 메서드
@@ -418,28 +425,9 @@ public class AngryGodAiCore : MonoBehaviour
         }
         else if (direction == -1) // 각성 요청이 없었고, 백대쉬 상황일 때의 다른 행동들
         {
-            // 액티브 스킬 1 시도 (각성하지 않았을 경우에만)
-            if (activeSkill1 != null && !activeSkill1.IsSkillActive)
-            {
-                if (Time.time >= activeSkill1.GetLastSkillUseTime() + 8f) // 8f은 예시 쿨타임
-                {
-                    Debug.Log("[AI Core] 백대쉬 완료 후 액티브 스킬 1 시도 (쿨타임 충족).");
-                    yield return StartCoroutine(activeSkill1.TryStartSkillAfterBackdash()); // activeSkill1이 끝날 때까지 대기 (선택적)
-                }
-                else
-                {
-                    Debug.Log("[AI Core] 액티브 스킬 1 쿨타임 미충족 - 사용 안함");
-                }
-            }
+            
 
-            // 소환 시도 (각성하지 않았고, 액티브 스킬 1도 사용하지 않았거나 끝났을 경우 - 순서 조정 가능)
-            if (bossSummoner != null && !bossSummoner.IsSummoning)
-            {
-                // bossSummoner에 쿨타임이 있다면 여기서 체크
-                Debug.Log("[AI Core] 백대쉬 완료 후 소환 시도.");
-                yield return StartCoroutine(bossSummoner.TryStartSummonAfterBackdash()); // 소환이 끝날 때까지 대기
-            }
-
+           
             if (ultimateSkill != null && !ultimateSkill.IsUltimateActive)
             {
                 if (Time.time >= ultimateSkill.GetLastUseTime() + ultimateSkill.cooldown)
@@ -669,7 +657,7 @@ public class AngryGodAiCore : MonoBehaviour
                (activeSkill1 != null && activeSkill1.IsSkillActive) ||
                (ultimateSkill != null && ultimateSkill.IsUltimateActive) ||
                (bossSummoner != null && bossSummoner.IsSummoning) ||
-               (flameSkill != null && flameSkill.IsFlaming) || // IsFlaming은 flameSkill에 있어야 함
+               (flameSkill != null && flameSkill.IsFlaming) ||
                isAwakening;
     }
     #region 외부 상호작용 함수 (ActiveSkill1 및 필요시 다른 스크립트용)

@@ -1,28 +1,28 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(AngryGodAiCore))]
+[RequireComponent(typeof(AngryGodAiCoreRE))]
 [RequireComponent(typeof(Animator))]
 public class BossSummoner : MonoBehaviour
 {
-    [Header("¼ÒÈ¯ ¼³Á¤")]
+    [Header("ì†Œí™˜ ì„¤ì •")]
     [SerializeField] private GameObject monsterPrefab;
     [SerializeField] private Transform[] leftSummonPoints;
     [SerializeField] private Transform[] rightSummonPoints;
     [SerializeField] private float summonCooldown = 15f;
     [SerializeField] private int monstersPerSummon = 3;
-    [SerializeField] private GameObject exclamationPrefab; // ´À³¦Ç¥ ÇÁ¸®ÆÕ
+    [SerializeField] private GameObject exclamationPrefab; // ëŠë‚Œí‘œ í”„ë¦¬íŒ¹
 
     private float lastSummonTime = -15f;
     private bool isSummoning = false;
 
-    private AngryGodAiCore aiCore;
+    private AngryGodAiCoreRE aiCore;
     private Animator animator;
 
     private void Awake()
     {
-        aiCore = GetComponent<AngryGodAiCore>();
+        aiCore = GetComponent<AngryGodAiCoreRE>();
         animator = GetComponent<Animator>();
     }
 
@@ -31,38 +31,24 @@ public class BossSummoner : MonoBehaviour
         lastSummonTime = -summonCooldown;
     }
 
-    public bool TryStartSummon()
+
+    public void StartSummon()
     {
-        if (Time.time < lastSummonTime + summonCooldown || isSummoning || monsterPrefab == null)
-            return false;
+        if (!CanUseSummon)
+            return;
 
-        if (GameObject.FindGameObjectsWithTag("SummonerEnemy").Length > 0)
-            return false;
-
-        Debug.Log("TryStartSummon ½ÇÇàµÊ");
-        aiCore.InitiateBackdash();
-        return true;
-    }
-
-    public IEnumerator TryStartSummonAfterBackdash()
-    {
-        if (Time.time < aiCore.GetGlobalCooldownTime())
-            yield break;
-
-        aiCore.SetGlobalCooldownTime(Time.time + 6f);
-        yield return new WaitForSeconds(0.1f);
         StartCoroutine(SummonRoutine());
     }
 
+
     private IEnumerator SummonRoutine()
     {
-        Debug.Log("SummonRoutine ½ÃÀÛ");
+        Debug.Log("SummonRoutine ì‹œì‘");
+
         isSummoning = true;
-        aiCore.NotifyActionStart();
 
         aiCore.StopMovement();
-        GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        aiCore.ForceFlipTowardsTarget();
+        aiCore.FaceTarget();
 
         animator.SetTrigger("Summon");
 
@@ -70,20 +56,25 @@ public class BossSummoner : MonoBehaviour
         {
             yield return null;
         }
-
-        GetComponent<Rigidbody2D>().gravityScale = 1f;
     }
 
     public void AnimEvent_PerformSummon()
     {
-        Debug.Log("AnimEvent_PerformSummon È£ÃâµÊ");
+        Debug.Log("AnimEvent_PerformSummon í˜¸ì¶œë¨");
 
         float exclamationDuration = 2f;
 
-        bool isFacingRight = aiCore != null && aiCore.IsFacingRight;
-        Transform[] selectedPoints = isFacingRight ? rightSummonPoints : leftSummonPoints;
-        string direction = isFacingRight ? "¿À¸¥ÂÊ" : "¿ŞÂÊ";
+        Transform target = aiCore.GetTarget();
 
+        bool isFacingRight =
+            target != null &&
+            target.position.x > transform.position.x;
+
+        Transform[] selectedPoints =
+            isFacingRight ? rightSummonPoints : leftSummonPoints;
+
+        string direction =
+            isFacingRight ? "ì˜¤ë¥¸ìª½" : "ì™¼ìª½";
         foreach (Transform spawnPoint in selectedPoints)
         {
             if (spawnPoint != null && exclamationPrefab != null)
@@ -91,70 +82,71 @@ public class BossSummoner : MonoBehaviour
                 Vector3 iconPos = spawnPoint.position + new Vector3(0, 0.8f, 0);
                 GameObject icon = Instantiate(exclamationPrefab, iconPos, Quaternion.identity);
 
-                // ¹æÇâ ¹İÀü
+                // ë°©í–¥ ë°˜ì „
                 Vector3 scale = icon.transform.localScale;
                 scale.x *= isFacingRight ? 1 : -1;
                 icon.transform.localScale = scale;
 
-                Destroy(icon, exclamationDuration); //  Á¤È®È÷ 2ÃÊ ÈÄ »ç¶óÁü
+                Destroy(icon, exclamationDuration); //  ì •í™•íˆ 2ì´ˆ í›„ ì‚¬ë¼ì§
             }
         }
 
-        //  ´À³¦Ç¥°¡ »ç¶óÁö´Â ±× ¼ø°£, ¸ó½ºÅÍ ¼ÒÈ¯ ½ÃÀÛ
+        //  ëŠë‚Œí‘œê°€ ì‚¬ë¼ì§€ëŠ” ê·¸ ìˆœê°„, ëª¬ìŠ¤í„° ì†Œí™˜ ì‹œì‘
         StartCoroutine(DelayedSummonRoutine(exclamationDuration));
     }
 
 
     private IEnumerator DelayedSummonRoutine(float delay)
     {
-        yield return new WaitForSeconds(delay); //  exclamationDuration°ú µ¿ÀÏÇÏ°Ô ±â´Ù¸²
-        SpawnMonsters();                        //  Áï½Ã ¼ÒÈ¯
-        Debug.Log("¼ÒÈ¯ ¿Ï·á");
+        yield return new WaitForSeconds(delay); //  exclamationDurationê³¼ ë™ì¼í•˜ê²Œ ê¸°ë‹¤ë¦¼
+        SpawnMonsters();                        //  ì¦‰ì‹œ ì†Œí™˜
+        Debug.Log("ì†Œí™˜ ì™„ë£Œ");
     }
-
 
 
     public void AnimEvent_SummonEnd()
     {
         lastSummonTime = Time.time;
         isSummoning = false;
-        aiCore.NotifyActionEnd();
     }
 
     public void AnimEvent_AllowMovementAfterSummon()
     {
-        aiCore.NotifyActionEnd();
     }
 
     private void SpawnMonsters()
     {
-        // º¸½ºÀÇ ¹æÇâÀ» ±â¹İÀ¸·Î ¼ÒÈ¯ ÁöÁ¡ ¼±ÅÃ
-        // º¸½ºÀÇ ¹æÇâÀ» ±â¹İÀ¸·Î ¼ÒÈ¯ ÁöÁ¡ ¼±ÅÃ
-        bool isFacingRight = aiCore != null && aiCore.IsFacingRight;
-        string direction = isFacingRight ? "¿À¸¥ÂÊ" : "¿ŞÂÊ";
+        // ë³´ìŠ¤ì˜ ë°©í–¥ì„ ê¸°ë°˜ìœ¼ë¡œ ì†Œí™˜ ì§€ì  ì„ íƒ
+        // ë³´ìŠ¤ì˜ ë°©í–¥ì„ ê¸°ë°˜ìœ¼ë¡œ ì†Œí™˜ ì§€ì  ì„ íƒ
+        Transform target = aiCore.GetTarget();
+
+        bool isFacingRight =
+            target != null &&
+            target.position.x > transform.position.x;
+        string direction = isFacingRight ? "ì˜¤ë¥¸ìª½" : "ì™¼ìª½";
         Transform[] selectedPoints = isFacingRight ? rightSummonPoints : leftSummonPoints;
 
-        Debug.Log($"[¸ó½ºÅÍ ¼ÒÈ¯] ¼ÒÈ¯ ¹æÇâ: {direction}");
+        Debug.Log($"[ëª¬ìŠ¤í„° ì†Œí™˜] ì†Œí™˜ ë°©í–¥: {direction}");
 
         if (selectedPoints.Length == 0) return;
 
-        // ¼ÒÈ¯ Æ÷ÀÎÆ®¸¦ ¸®½ºÆ®·Î º¯È¯ ÈÄ ¼ÅÇÃ
+        // ì†Œí™˜ í¬ì¸íŠ¸ë¥¼ ë¦¬ìŠ¤íŠ¸ë¡œ ë³€í™˜ í›„ ì…”í”Œ
         List<Transform> spawnList = new List<Transform>(selectedPoints);
-        Shuffle(spawnList); // ·£´ıÈ­
+        Shuffle(spawnList); // ëœë¤í™”
 
-        // Áßº¹ ¾øÀÌ ¼ÒÈ¯ (ÃÖ´ë monstersPerSummon ¼ö ¸¸Å­)
+        // ì¤‘ë³µ ì—†ì´ ì†Œí™˜ (ìµœëŒ€ monstersPerSummon ìˆ˜ ë§Œí¼)
         for (int i = 0; i < monstersPerSummon && i < spawnList.Count; i++)
         {
             Transform spawnPoint = spawnList[i];
             if (spawnPoint != null)
             {
                 Instantiate(monsterPrefab, spawnPoint.position, spawnPoint.rotation);
-                Debug.Log($"[¸ó½ºÅÍ ¼ÒÈ¯] À§Ä¡: {spawnPoint.position} / ¹æÇâ: {direction}");
+                Debug.Log($"[ëª¬ìŠ¤í„° ì†Œí™˜] ìœ„ì¹˜: {spawnPoint.position} / ë°©í–¥: {direction}");
             }
         }
     }
 
-    // Fisher-Yates ¼ÅÇÃ ¾Ë°í¸®Áò
+    // Fisher-Yates ì…”í”Œ ì•Œê³ ë¦¬ì¦˜
     private void Shuffle(List<Transform> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
@@ -194,4 +186,9 @@ public class BossSummoner : MonoBehaviour
             }
         }
     }
+    public bool CanUseSummon =>
+    !isSummoning &&
+    monsterPrefab != null &&
+    Time.time >= lastSummonTime + summonCooldown &&
+    GameObject.FindGameObjectsWithTag("SummonerEnemy").Length == 0;
 }
