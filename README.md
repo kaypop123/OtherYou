@@ -24,6 +24,116 @@
 - **플레이어 시스템:** 캐릭터 전환, HP/MP/스탯, 경험치 및 레벨업 시스템  
 - **GUI 시스템:** 스탯창, 스킬쿨타임, 옵션 메뉴, 해상도 UI 등 완성도 높은 인게임 UI 설계  
 - **VFX:** ShaderGraph + Effekseer 조합으로 공격/피격/보스 연출 제작  
+---
+
+## 🔎 주요 구현 코드
+
+Other You 개발 이후 기존 보스 AI 구조를 다시 분석하여  
+상태와 행동 로직이 하나의 클래스에 집중되어 있던 구조를  
+**State Pattern 기반 FSM 구조로 리팩토링했습니다.**
+
+### 🧠 Boss AI Core
+
+📄 [AngryGodAiCoreRE.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/AngryGodAiCoreRE.cs)
+
+- 보스 AI의 핵심 상태 및 전투 흐름 관리
+- State 기반으로 보스 행동 전환
+- 개별 행동 로직을 각 State로 분리하여 AI Core의 책임 축소
+
+---
+
+### 💤 Idle State
+
+📄 [BossIdleState.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossIdleState.cs)
+
+- 보스 대기 상태 관리
+- 플레이어 및 전투 상황에 따라 다음 행동으로 전환
+
+---
+
+### 🏃 Chase State
+
+📄 [BossChaseState.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossChaseState.cs)
+
+- 플레이어 추적 행동 관리
+- 전투 상황에 따라 공격 State로 전환
+
+---
+
+### ⚔️ Attack State
+
+📄 [BossAttackState.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossAttackState.cs)
+
+- 보스 기본 공격 행동 관리
+- 공격 행동과 상태 전이 로직을 독립적인 State로 분리
+
+---
+
+### 💨 Back Dash State
+
+📄 [BossBackDashState.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossBackDashState.cs)
+
+- 플레이어와의 거리를 확보하기 위한 회피 행동
+- 회피 이후 다음 공격 및 스킬 State와 연계
+
+---
+
+### 🔥 Active Skill State
+
+📄 [BossActiveSkill1State.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossActiveSkill1State.cs)
+
+- 보스 액티브 스킬 행동 관리
+- 스킬 실행과 다른 행동 상태를 분리하여 관리
+
+---
+
+### 🔥 Flame State
+
+📄 [BossFlameState.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossFlameState.cs)
+
+- 보스 특수 공격 패턴 관리
+- 특수 패턴을 독립적인 State로 분리
+
+---
+
+### 👹 Awakening State
+
+📄 [BossAwakeningState.cs](https://github.com/kaypop123/OtherYou/blob/main/Assets/Scripts/Boss/BossCodeRefactoring/BossAwakeningState.cs)
+
+- 보스 체력 조건에 따른 각성 상태 관리
+- 페이즈 전환 및 이후 전투 패턴과 연계
+
+---
+
+## 🔄 Boss AI 리팩토링
+
+### Before
+
+기존 보스 AI는 하나의 AI Core에서 상태 판단, 행동 실행,
+다수의 Flag 및 Coroutine을 함께 관리했습니다.
+
+행동 패턴이 증가하면서 상태 조건과 우선순위가 복잡해졌고,
+새로운 행동을 추가하거나 기존 행동을 수정할 때
+AI Core의 여러 조건을 함께 확인해야 하는 문제가 발생했습니다.
+
+### After
+
+각 보스 행동을 독립적인 State 클래스로 분리하고,
+State Pattern 기반 FSM 구조로 변경했습니다.
+
+`Idle`, `Chase`, `Attack`, `BackDash`, `ActiveSkill`,
+`Awakening` 등의 행동을 각각 독립적인 State로 관리하여
+각 클래스가 자신의 행동과 상태 전이를 담당하도록 구성했습니다.
+
+### 📊 구조 비교
+
+| 항목 | Before | After |
+|---|---|---|
+| 상태 관리 | Flag / 조건문 중심 | State 객체 중심 |
+| 행동 로직 | AI Core에 집중 | State별 분리 |
+| 상태 전이 | 여러 조건에서 처리 | State 기반 명시적 전환 |
+| 기능 추가 | 기존 AI Core 수정 필요 | 새로운 State 추가 중심 |
+| 유지보수 | 행동 증가 시 복잡도 증가 | 상태별 독립적인 수정 가능 |
 
 ---
 
